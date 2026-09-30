@@ -575,13 +575,98 @@ vec3 sea(vec2 pixel) {
     return ocean;
 }
 
+// Retorna cobertura, posição normalizada no trecho e identidade do glifo.
+vec3 promptMarker(vec3 color) {
+    float coverage = (color.g - iBackgroundColor.g) / (1.0 - iBackgroundColor.g);
+    if (coverage < 0.035) return vec3(0.0);
+    vec3 ink = (color - (1.0 - coverage) * iBackgroundColor) / coverage;
+    float code = (ink.r * 255.0 - 32.0) / 4.0;
+    float host = ink.b * 255.0 / 32.0;
+    if (code < -0.35 || code > 48.35 || abs(code - round(code)) > 0.35 ||
+        host < -0.15 || host > 3.15 || abs(host - round(host)) > 0.15)
+        return vec3(0.0);
+    return vec3(clamp(coverage, 0.0, 1.0), clamp(round(code), 0.0, 48.0) / 48.0,
+                clamp(round(host), 0.0, 3.0));
+}
+
+// Relógio de renderização: não depende do idle do shell, da digitação ou do cursor.
+// Só uma crista: usuário -> brilho do @ -> host -> caminho -> usuário.
+float promptPulse(vec3 marker) {
+    float phase = mod(iTime, 12.0);
+    float birth = marker.y * 2.0;
+    float duration = 1.2;
+    if (marker.z > 2.5) {
+        // Acende durante a descida da última letra; segura o pico por 0,2 s.
+        // Termina de apagar antes de passar a crista para o nome da máquina.
+        return smoothstep(2.6, 3.6, phase)
+             * (1.0 - smoothstep(3.8, 5.0, phase));
+    } else if (marker.z > 0.5) {
+        // Host e caminho compartilham uma frente contínua, incluindo o espaço.
+        birth = 5.0 + marker.y * 5.4;
+    }
+    float t = clamp((phase - birth) / duration, 0.0, 1.0);
+    return 16.0 * t * t * (1.0 - t) * (1.0 - t);
+}
+
+float promptLift(vec3 marker) {
+    return marker.z > 2.5 ? 0.0 : promptPulse(marker) * PROMPT_LIFT_PX;
+}
+
+vec3 promptColor(vec3 marker) {
+    if (marker.z > 2.5)
+        return mix(vec3(77,126,154), vec3(225,255,255), promptPulse(marker)) / 255.0;
+    if (marker.z > 1.5) return vec3(140,213,231) / 255.0;
+    return mix(vec3(94,234,212), vec3(103,185,255), marker.z) / 255.0;
+}
+
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     prepareOcean(sessionSeed());
-    vec4 terminal = texture(iChannel0, fragCoord / iResolution.xy);
-    vec3 result = terminal.rgb;
-    float backgroundMask = 1.0 - smoothstep(0.035, 0.20, length(result - iBackgroundColor));
-    if (backgroundMask > 0.0) result += sea(fragCoord) * backgroundMask;
     float opening = introProgress();
+    vec2 uv = fragCoord / iResolution.xy;
+    vec4 terminal = texture(iChannel0, uv);
+    vec3 result = terminal.rgb;
+    float textCoverage = 0.0;
+    // Marcadores estáticos pertencem apenas ao PS1 ativo; o histórico tem cores
+    // normais. Decodificar pela cor mantém o prompt correto mesmo com input em
+    // várias linhas, cursor oculto ou cursor movido para o início do comando.
+    {
+        vec3 original = promptMarker(terminal.rgb);
+        if (original.x > 0.0) result = iBackgroundColor;
+        vec3 inkSum = vec3(0.0);
+        // Interpolação subpixel contínua, com derivadas suaves nas pontas da onda.
+        for (int offset = 0; offset <= 3; offset++) {
+            vec2 sampleUV = (fragCoord - vec2(0.0, float(offset))) / iResolution.xy;
+            vec3 marker = promptMarker(texture(iChannel0, sampleUV).rgb);
+            float lift = promptLift(marker);
+            float weight = max(0.0, 1.0 - abs(float(offset) - lift));
+            float coverage = marker.x * weight;
+            textCoverage += coverage;
+            inkSum += promptColor(marker) * coverage;
+        }
+        result = result * (1.0 - min(textCoverage, 1.0)) + inkSum;
+    }
+    // O mar aparece apenas no fundo; texto e seleção mantêm sua legibilidade.
+    float backgroundMask = (1.0 - smoothstep(
+        0.035, 0.20, length(result - iBackgroundColor))) * (1.0 - min(textCoverage, 1.0));
+    if (backgroundMask > 0.0) result += sea(fragCoord) * backgroundMask;
+
+    // Halo do @ amostrado da própria tinta: segue o prompt mesmo sem cursor.
+    float atPulse = promptPulse(vec3(1.0, 0.0, 3.0));
+    if (atPulse > 0.0 && backgroundMask > 0.0) {
+        float halo = 0.0;
+        for (int j = -2; j <= 2; j++) {
+            for (int i = -2; i <= 2; i++) {
+                vec2 offset = vec2(float(i), float(j)) * 2.5;
+                vec3 mark = promptMarker(texture(iChannel0,
+                    (fragCoord + offset) / iResolution.xy).rgb);
+                if (mark.z > 2.5)
+                    halo += mark.x * exp(-dot(offset, offset) / 22.0);
+            }
+        }
+        result += vec3(0.32, 0.9, 1.0) * halo * 0.045 * atPulse * backgroundMask;
+    }
+
     if (opening >= 0.0) result += introTitle(fragCoord, opening) * backgroundMask;
+
     fragColor = vec4(clamp(result, 0.0, 1.0), terminal.a);
 }
