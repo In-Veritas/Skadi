@@ -1,0 +1,486 @@
+// Água com órbitas de onda e corpo independente de pontos nadando através dela.
+const float SEA_OPACITY = 0.24;
+const float SEA_HORIZON = 0.60;
+const float GRID = 24.0;
+const float CAMERA = 560.0;
+const float EVENT_SECONDS = 72.0;
+const float WEATHER_SECONDS = 28.0;
+const float PROMPT_LIFT_PX = 3.0;
+const float TRAIL_SECONDS = 0.55;
+const vec3 OCEAN_BLUE = vec3(0.20, 0.52, 1.00);
+const vec3 TURQUOISE = vec3(0.15, 0.90, 0.80);
+
+float introProgress() { return -1.0; }
+float introWaterVisibility(vec2 world) { return 1.0; }
+uint hashBits(uint n) {
+    n ^= n >> 16u;
+    n *= 0x7feb352du;
+    n ^= n >> 15u;
+    n *= 0x846ca68bu;
+    return n ^ (n >> 16u);
+}
+uint sessionSeed() {
+    uint seed = 0u;
+    for (int i = 0; i < 4; i++) {
+        uvec3 c = uvec3(round(iPalette[252 + i] * 255.0)) & uvec3(3u);
+        seed |= (c.r | (c.g << 2u) | (c.b << 4u)) << uint(6 * i);
+    }
+    return seed;
+}
+float randomValue(uint seed, uint salt) {
+    return float(hashBits(seed ^ (salt * 0x9e3779b9u)) & 0x00ffffffu) / 16777216.0;
+}
+
+struct OceanEvent {
+    uint seed;
+    vec2 origin;
+    vec2 center;
+    vec2 forward;
+    vec2 side;
+    float size;
+    float speed;
+    float age;
+    float exposure;
+    float bodyY;
+    float pitch;
+    float wind;
+};
+
+// Integral de uma aceleração suave no mergulho, sem freada no fim do evento.
+float swimmingTravel(float age) {
+    float diving = clamp(age - 7.0, 0.0, 6.0);
+    return age + 0.025 * diving * diving + 0.30 * max(age - 13.0, 0.0);
+}
+
+void poseWhale(inout OceanEvent e) {
+    float phase = randomValue(e.seed, 9u) * 6.283185;
+    // Pequenas acelerações associadas à braçada, mantendo avanço contínuo.
+    float stride = e.speed * (swimmingTravel(e.age) - swimmingTravel(8.0))
+        + e.speed * (0.10 / 1.25) * (sin(e.age * 1.25 + phase) - sin(10.0 + phase));
+    e.center = e.origin + e.forward * stride;
+    float rise = smoothstep(0.0, 5.0, e.age);
+    float sink = smoothstep(6.5, 15.0, e.age);
+    e.exposure = rise * (1.0 - sink);
+    e.bodyY = e.size * (-0.44 + 0.39 * e.exposure);
+    e.pitch = 0.055 * rise * (1.0 - smoothstep(4.0, 7.0, e.age))
+              - 0.095 * smoothstep(6.5, 11.0, e.age) * (1.0 - sink);
+}
+
+OceanEvent sceneEvent(float time, uint seed) {
+    OceanEvent e;
+    e.seed = hashBits(seed ^ uint(floor(time / EVENT_SECONDS)));
+    float depth = mix(0.36, 0.69, randomValue(e.seed, 1u));
+    e.origin = vec2((randomValue(e.seed, 2u) - 0.5) * iResolution.x * 0.35 / depth,
+                    CAMERA * (1.0 / depth - 1.0));
+    e.size = mix(165.0, 210.0, randomValue(e.seed, 3u));
+    float angle = mix(-0.19, 0.19, randomValue(e.seed, 4u));
+    if (randomValue(e.seed, 5u) < 0.5) angle += 3.141593;
+    e.forward = vec2(cos(angle), sin(angle));
+    e.side = vec2(-e.forward.y, e.forward.x);
+    e.speed = mix(30.0, 45.0, randomValue(e.seed, 8u));
+    e.age = mod(time, EVENT_SECONDS) - mix(8.0, 27.0, randomValue(e.seed, 6u));
+    e.wind = mix(-1.0, 1.0, randomValue(e.seed, 7u));
+    poseWhale(e);
+    return e;
+}
+
+// Seis bandas direcionais: swell longo e ondulações menores, inspiradas
+// nos vídeos de Acerola. Avaliação analítica; não é uma simulação FFT.
+const int WAVE_COUNT = 6;
+struct WaveSettings {
+    vec2 direction;
+    float k;
+    float omega;
+    float amplitude;
+    float phase;
+};
+WaveSettings oceanWaves[WAVE_COUNT];
+// A última amostra fornece a inclinação aproximada e compressão das cristas
+// ao desenho do ponto, sem repetir a avaliação de todo o campo.
+vec2 waterSlope;
+float waterCompression;
+
+void prepareOcean(uint seed) {
+    const float wavelengths[6] = float[6](830.0, 590.0, 370.0, 245.0, 155.0, 105.0);
+    const float amplitudes[6] = float[6](11.0, 8.0, 4.7, 2.8, 1.4, 0.65);
+    const float spread[6] = float[6](0.0, 0.34, -0.28, 0.55, -0.62, 0.18);
+    float prevailing = randomValue(seed, 21u) * 6.283185;
+    float windAngle = prevailing + 0.32 * sin(iTime / WEATHER_SECONDS * 0.55);
+    vec2 wind = vec2(cos(windAngle), sin(windAngle));
+    float gust = 0.88 + 0.12 * sin(iTime * 0.075 + randomValue(seed, 29u) * 6.283185);
+    for (int index = 0; index < WAVE_COUNT; index++) {
+        uint key = hashBits(seed ^ (uint(index + 1) * 0x9e3779b9u));
+        float angle = prevailing + spread[index] + mix(-0.16, 0.16, randomValue(key, 22u));
+        WaveSettings w;
+        w.direction = vec2(cos(angle), sin(angle));
+        float wavelength = wavelengths[index] * mix(0.88, 1.12, randomValue(key, 23u));
+        w.k = 6.283185 / wavelength;
+        // Dispersão de águas profundas: omega² = g*k, com g em unidades da cena.
+        w.omega = sqrt(85.0 * w.k);
+        float alignment = pow(max(0.0, dot(w.direction, wind)), 2.0);
+        float energy = index < 2 ? 0.94 : gust * (0.65 + 0.35 * alignment);
+        w.amplitude = amplitudes[index] * energy;
+        w.phase = randomValue(key, 24u) * 6.283185;
+        oceanWaves[index] = w;
+    }
+}
+
+vec3 waveDisplacement(vec2 world, uint seed) {
+    vec2 samplePosition = world;
+    vec3 displacement = vec3(0.0);
+    waterSlope = vec2(0.0);
+    waterCompression = 0.0;
+    for (int index = 0; index < WAVE_COUNT; index++) {
+        WaveSettings w = oceanWaves[index];
+        float phase = dot(samplePosition, w.direction) * w.k - iTime * w.omega + w.phase;
+        float sine = sin(phase);
+        float cosine = cos(phase);
+        // Perfil exponencial: crista estreita, vale largo, altura média zero.
+        float crest = exp(sine - 1.0);
+        float derivative = 2.0 * w.amplitude * crest * cosine;
+        displacement.y += 2.0 * w.amplitude * (crest - 0.4657596);
+        displacement.xz += w.direction * (0.70 * w.amplitude * cosine);
+        waterSlope += w.direction * (derivative * w.k);
+        waterCompression += 0.70 * w.amplitude * w.k * sine;
+        // As bandas longas deslocam a amostragem das curtas: quebra as
+        // interferências regulares sem trocar a identidade dos pontos.
+        samplePosition -= w.direction * derivative * 0.18;
+    }
+    float depth = CAMERA / (CAMERA + max(world.y, 0.0));
+    waterSlope *= depth;
+    waterCompression *= depth;
+    return displacement * depth;
+}
+vec3 freeWaterVertex(vec2 world, uint seed) {
+    return vec3(world.x, 0.0, world.y) + waveDisplacement(world, seed);
+}
+
+// Seções anatômicas assimétricas: ombros largos, rostro baixo e região
+// posterior afunilada. Os mesmos perfis governam desenho e contato.
+vec2 bodyRadii(float u, OceanEvent e) {
+    float cap = sqrt(max(0.0, 1.0 - u * u));
+    float shoulder = smoothstep(-0.85, -0.03, u);
+    float rostrum = smoothstep(0.40, 0.96, u);
+    float width = (0.12 + 0.20 * shoulder) * (1.0 - 0.18 * rostrum);
+    float height = (0.17 + 0.075 * exp(-pow((u + 0.05) / 0.50, 2.0)))
+                 * (1.0 - 0.30 * rostrum);
+    return e.size * cap * vec2(width, height);
+}
+
+// Ondulação dorso-ventral propagada: cabeça estável, flexão crescente atrás.
+// A corcova é parte do contorno; o arco do mergulho cresce depois do sopro.
+vec2 spineOffset(float u, OceanEvent e) {
+    float rear = 1.0 - smoothstep(-0.92, 0.58, u);
+    float phase = e.age * 1.25 + randomValue(e.seed, 9u) * 6.283185 - (0.8 - u) * 2.1;
+    float swim = e.size * 0.065 * rear * rear * sin(phase);
+    float lateral = e.size * 0.014 * rear * rear * sin(phase * 0.65);
+    float hump = e.size * 0.045 * exp(-pow((u + 0.30) / 0.24, 2.0));
+    float arch = e.size * 0.035 * exp(-pow((u + 0.05) / 0.55, 2.0))
+               * smoothstep(7.0, 11.0, e.age) * (1.0 - smoothstep(12.0, 16.0, e.age));
+    return vec2(lateral, e.bodyY + e.pitch * u * e.size + swim + hump + arch);
+}
+
+float dorsalFin(float u, OceanEvent e) {
+    return e.size * 0.070 * exp(-pow((u + 0.42) / 0.115, 2.0));
+}
+
+// União exata da seção oval e da barbatana triangular usada no desenho.
+float bodySection(float along, float waterY, OceanEvent e) {
+    float u = along / e.size;
+    if (abs(u) >= 1.0) return 0.0;
+    vec2 radii = bodyRadii(u, e);
+    float height = waterY - spineOffset(u, e).y;
+    float oval = radii.x * sqrt(max(0.0, 1.0 - pow(height / max(radii.y, 0.01), 2.0)));
+    float finBase = radii.y * 0.95;
+    float finTop = radii.y + dorsalFin(u, e);
+    float fin = height >= finBase ? radii.x * 0.30
+                * clamp((finTop - height) / max(finTop - finBase, 0.01), 0.0, 1.0) : 0.0;
+    return max(oval, fin);
+}
+
+vec3 waterVertex(vec2 world, OceanEvent e, uint seed) {
+    vec3 p = freeWaterVertex(world, seed);
+    if (e.age < 0.0 || e.age > 29.0) return p;
+    vec2 delta = p.xz - e.center;
+    float along = dot(delta, e.forward);
+    float lateral = dot(delta, e.side) - spineOffset(along / e.size, e).x;
+    float width = bodySection(along, p.y, e);
+
+    // Escoamento lateral conservando a ordem dos pontos de cada lado.
+    // A seção imersa móvel abre um canal; ao afundar, width tende a zero
+    // e a mesma água retorna sem virar parte do corpo da baleia.
+    float restLateral = dot(world - e.origin, e.side) - spineOffset(along / e.size, e).x;
+    float orientation = restLateral < 0.0 ? -1.0 : 1.0;
+    float push = orientation * (sqrt(restLateral * restLateral + width * width) - abs(restLateral));
+    float pushedLateral = lateral + push;
+    float falloff = 1.0 - smoothstep(e.size * 0.9, e.size * 2.1, abs(lateral));
+    p.xz += e.side * push * falloff;
+
+    float depth = CAMERA / (CAMERA + max(p.z, 0.0));
+    float rim = exp(-pow((abs(pushedLateral) - width - 9.0) / 22.0, 2.0))
+                * smoothstep(0.0, 12.0, width);
+    p.y += rim * 7.0 * depth;
+    // Pequena onda de proa, deslocando-se junto com o animal.
+    float bow = exp(-pow((along - e.size * 0.72) / 55.0, 2.0))
+              * exp(-pow(lateral / (e.size * 0.48), 2.0)) * e.exposure;
+    p.xz += e.forward * bow * 9.0;
+    p.y += bow * 11.0 * depth;
+
+    // Esteira em V atrás do corpo: as cristas se afastam da trajetória.
+    float behind = max(0.0, -along - e.size * 0.35);
+    float spread = e.size * 0.26 + behind * 0.30;
+    float wake = exp(-pow((abs(lateral) - spread) / 30.0, 2.0))
+               * exp(-behind / (e.size * 2.8))
+               * smoothstep(0.0, 40.0, behind)
+               * smoothstep(1.0, 5.0, e.age) * (1.0 - smoothstep(18.0, 29.0, e.age));
+    float phase = behind * 0.065 - e.age * 1.7;
+    p.y += sin(phase) * wake * 10.0 * depth;
+    p.xz += e.side * orientation * cos(phase) * wake * 5.0 * depth;
+    // Revalida o contato após a onda de proa: nem nas cavas da onda os
+    // pontos da água devem atravessar o volume sólido do corpo.
+    vec2 contact = p.xz - e.center;
+    float contactAlong = dot(contact, e.forward);
+    float contactSide = dot(contact, e.side) - spineOffset(contactAlong / e.size, e).x;
+    float contactWidth = bodySection(contactAlong, p.y, e);
+    if (abs(contactSide) < contactWidth) {
+        float signSide = contactSide < 0.0 ? -1.0 : 1.0;
+        p.xz += e.side * (signSide * contactWidth - contactSide);
+    }
+    return p;
+}
+
+// Nuvem corporal independente da grade da água. Parâmetros fixos ligados ao
+// corpo: longitudinal u e ângulo theta ao redor do dorso, sem troca de IDs.
+vec3 whaleVertex(float u, float theta, OceanEvent e) {
+    float along = u * e.size;
+    vec2 radii = bodyRadii(u, e);
+    vec2 spine = spineOffset(u, e);
+    float lateral = sin(theta) * radii.x;
+    float height = cos(theta) * radii.y;
+    if (abs(sin(theta)) < 0.30) {
+        float fin = radii.y * 0.95 + (radii.y * 0.05 + dorsalFin(u, e))
+                  * (1.0 - abs(sin(theta)) / 0.30);
+        height = max(height, fin);
+    }
+    vec2 position = e.center + e.forward * along + e.side * (lateral + spine.x);
+    return vec3(position.x, spine.y + height, position.y);
+}
+
+vec2 projectPoint(vec3 point) {
+    float d = CAMERA / (CAMERA + point.z);
+    return vec2(iResolution.x * 0.5 + point.x * d,
+                iResolution.y * SEA_HORIZON * (1.0 - d) + point.y * d);
+}
+vec3 dotColor(vec2 pixel, vec3 point, vec3 color, float visibility) {
+    if (point.z < 0.0 || visibility <= 0.0) return vec3(0.0);
+    float d = CAMERA / (CAMERA + point.z);
+    float radius = mix(0.40, 1.45, clamp(d, 0.0, 1.0));
+    float ink = 1.0 - smoothstep(radius - 0.40, radius + 0.55, length(pixel - projectPoint(point)));
+    float fade = smoothstep(0.025, 0.18, d) * mix(0.32, 1.0, d);
+    return color * ink * fade * SEA_OPACITY * visibility;
+}
+bool eventRegion(vec2 world, OceanEvent e) {
+    return e.age >= 0.0 && e.age <= 29.0 &&
+           abs(world.y - e.center.y) < GRID * 11.0 &&
+           abs(world.x - e.center.x) < e.size * 1.45;
+}
+vec3 drawWaterPoint(vec2 pixel, vec2 world, OceanEvent e, uint seed) {
+    if (world.y < 0.0) return vec3(0.0);
+    float visibility = introWaterVisibility(world);
+    if (visibility <= 0.0) return vec3(0.0);
+    if (!eventRegion(world, e)) {
+        // Limite conservador da órbita, incluindo projeção e esteira. Evita
+        // calcular o campo de ondas para os vizinhos que não cobrem este pixel.
+        float d = CAMERA / (CAMERA + world.y);
+        vec2 projected = projectPoint(vec3(world.x, 0.0, world.y));
+        vec2 bound = vec2(45.0 + abs(projected.x - iResolution.x * 0.5) * 0.09,
+                          55.0 + iResolution.y * SEA_HORIZON * 0.09) * d * d + 3.0;
+        if (any(greaterThan(abs(pixel - projected), bound))) return vec3(0.0);
+    }
+    vec3 point = waterVertex(world, e, seed);
+    float crest = smoothstep(-13.0, 19.0, point.y);
+    vec3 normal = normalize(vec3(-waterSlope.x, 1.0, -waterSlope.y));
+    float light = max(0.0, dot(normal, normalize(vec3(-0.35, 0.85, -0.40))));
+    float foam = smoothstep(0.07, 0.20, waterCompression) * smoothstep(3.0, 20.0, point.y);
+    vec3 color = mix(OCEAN_BLUE, TURQUOISE, crest) * (0.40 + 0.35 * crest + 0.25 * light);
+    color = mix(color, vec3(0.55, 0.86, 0.90), foam * 0.35);
+    return dotColor(pixel, point, color, visibility);
+}
+
+const int SPRAY_COUNT = 288;
+
+struct SprayPoint {
+    vec3 position;
+    float radius;
+    float visibility;
+    float vapor;
+};
+
+SprayPoint sprayParticle(int index, OceanEvent e) {
+    SprayPoint particle;
+    particle.position = vec3(0.0);
+    particle.radius = 0.0;
+    particle.visibility = 0.0;
+    particle.vapor = index % 3 == 0 ? 0.0 : 1.0;
+    uint id = uint(index);
+    float emitted = 4.65 + float(index) / float(SPRAY_COUNT - 1) * 0.80
+                  + randomValue(e.seed, id + 91u) * 0.04;
+    float age = e.age - emitted;
+    float life = mix(2.6, 4.4, randomValue(e.seed, id + 101u));
+    if (age <= 0.0 || age >= life) return particle;
+    OceanEvent birth = e;
+    birth.age = emitted;
+    poseWhale(birth);
+    birth.speed *= 1.0 + 0.05 * clamp(emitted - 7.0, 0.0, 6.0)
+                   + 0.10 * cos(emitted * 1.25 + randomValue(e.seed, 9u) * 6.283185);
+    vec3 p = whaleVertex(0.64, 0.0, birth);
+    // Dois pontos de emissão próximos no alto da cabeça.
+    p.xz += birth.side * (index % 2 == 0 ? -2.0 : 2.0);
+    float angle = randomValue(e.seed, id + 111u) * 6.283185;
+    vec2 spreadDirection = vec2(cos(angle), sin(angle));
+    float variation = randomValue(e.seed, id + 121u);
+    if (particle.vapor > 0.5) {
+        // Névoa desacelera ao subir, expande e é levada pelo vento.
+        float drag = mix(1.0, 1.6, variation);
+        float rise = mix(78.0, 118.0, variation) * (1.0 - exp(-drag * age)) / drag;
+        p.y += rise + age * 4.0;
+        p.xz += birth.forward * birth.speed * 0.65 * (1.0 - exp(-age));
+        p.xz += spreadDirection * (4.0 * age + 9.0 * pow(age, 1.2));
+        p.xz += vec2(e.wind * 5.0, 0.0) * age * age;
+        p.xz += vec2(sin(age * 2.3 + angle), cos(age * 1.7 + angle)) * age * 2.2;
+        particle.radius = mix(0.20, 0.42, variation) + min(age, 2.0) * 0.10;
+    } else {
+        // Gotículas mais pesadas desenham arcos e caem de volta na água.
+        p.y += mix(60.0, 90.0, variation) * age - 22.0 * age * age;
+        p.xz += birth.forward * birth.speed * age * 0.75;
+        p.xz += spreadDirection * age * mix(5.0, 14.0, variation);
+        p.xz += vec2(e.wind * 3.0, 0.0) * age * age;
+        particle.radius = mix(0.26, 0.52, variation);
+    }
+    float depth = CAMERA / (CAMERA + max(p.z, 0.0));
+    particle.radius *= 0.60 + 0.40 * depth;
+    particle.position = p;
+    particle.visibility = smoothstep(0.0, 0.12, age)
+        * (1.0 - smoothstep(life * 0.38, life, age)) * smoothstep(0.0, 5.0, p.y);
+    return particle;
+}
+
+vec3 drawSpray(vec2 pixel, OceanEvent e) {
+    if (e.age < 4.65 || e.age > 10.0) return vec3(0.0);
+    OceanEvent source = e;
+    source.age = 5.05;
+    poseWhale(source);
+    vec3 head = whaleVertex(0.64, 0.0, source);
+    vec2 screenHead = projectPoint(head);
+    float depth = CAMERA / (CAMERA + head.z);
+    float oldest = max(0.0, e.age - 4.65);
+    float radius = e.speed * (0.50 + oldest * 0.85) + 6.2 * oldest
+                   + 9.0 * pow(oldest, 1.2) + abs(e.wind) * 5.0 * oldest * oldest + 6.0;
+    float screenRadius = depth * radius * (1.0 + abs(screenHead.x - iResolution.x * 0.5) / CAMERA)
+                         / max(0.4, 1.0 - radius / (CAMERA + head.z)) + 3.0;
+    if (abs(pixel.x - screenHead.x) > screenRadius ||
+        pixel.y < screenHead.y - 20.0 || pixel.y > screenHead.y + 205.0 * depth + 25.0)
+        return vec3(0.0);
+    vec3 cloud = vec3(0.0);
+    for (int i = 0; i < SPRAY_COUNT; i++) {
+        SprayPoint particle = sprayParticle(i, e);
+        if (particle.visibility <= 0.0) continue;
+        vec2 delta = pixel - projectPoint(particle.position);
+        float r = max(0.16, particle.radius);
+        float dropletInk = 1.0 - smoothstep(max(0.0, r - 0.18), r + 0.30, length(delta));
+        float mistInk = exp(-dot(delta, delta) / (2.0 * r * r));
+        float ink = mix(dropletInk, mistInk, particle.vapor);
+        float opacity = mix(0.17, 0.075, particle.vapor) * particle.visibility;
+        cloud += vec3(0.58, 0.85, 0.92) * ink * opacity;
+    }
+    return min(cloud, vec3(0.20, 0.25, 0.27));
+}
+
+vec3 drawWhale(vec2 pixel, OceanEvent e, uint seed) {
+    if (introProgress() >= 0.0) return vec3(0.0);
+    if (e.age < 0.0 || e.age > 17.0) return vec3(0.0);
+    vec3 result = vec3(0.0);
+    float screenX = pixel.x - iResolution.x * 0.5;
+    float approximateU = (screenX * (CAMERA + e.center.y) - CAMERA * e.center.x)
+                         / (e.size * (CAMERA * e.forward.x - screenX * e.forward.y));
+    int nearest = int(round(approximateU * 9.5));
+    for (int candidate = -3; candidate <= 3; candidate++) {
+        int longitudinal = nearest + candidate;
+        if (longitudinal < -9 || longitudinal > 9) continue;
+        float u = float(longitudinal) / 9.5;
+        for (int cross = -4; cross <= 4; cross++) {
+            float theta = float(cross) * 0.34;
+            vec3 p = whaleVertex(u, theta, e);
+            // O ponto só cobre até dois pixels. Consultar as ondas para os
+            // outros pixels repetia centenas de cálculos invisíveis por quadro.
+            vec2 distanceToPoint = abs(pixel - projectPoint(p));
+            if (max(distanceToPoint.x, distanceToPoint.y) > 2.0) continue;
+            float surfaceY = freeWaterVertex(p.xz, seed).y;
+            float visible = smoothstep(surfaceY - 1.5, surfaceY + 2.0, p.y);
+            float highlight = 0.5 + 0.5 * cos(theta);
+            vec3 color = mix(vec3(0.18, 0.55, 0.66), vec3(0.42, 0.85, 0.88), highlight);
+            result = max(result, dotColor(pixel, p, color, visible));
+        }
+    }
+    result += drawSpray(pixel, e);
+    return result;
+}
+
+vec3 sea(vec2 pixel) {
+    uint seed = sessionSeed();
+    OceanEvent e = sceneEvent(iTime, seed);
+    float horizon = iResolution.y * SEA_HORIZON;
+    float depth = clamp((horizon - pixel.y) / horizon, 0.025, 1.0);
+    float nearRow = floor(CAMERA / GRID * (1.0 / depth - 1.0));
+    vec3 ocean = vec3(0.0);
+    vec2 estimated = vec2((pixel.x - iResolution.x * 0.5) / depth,
+                          CAMERA * (1.0 / depth - 1.0));
+    if (pixel.y < horizon + 3.0) {
+        // Inverte a projeção da água para buscar só os vizinhos da órbita
+        // correspondente ao pixel, em vez de varrer 45 pontos em toda a tela.
+        for (int iteration = 0; iteration < 3; iteration++) {
+            float localDepth = CAMERA / (CAMERA + max(estimated.y, 0.0));
+            vec2 error = projectPoint(freeWaterVertex(estimated, seed)) - pixel;
+            estimated.x -= error.x / localDepth;
+            estimated.y -= clamp(error.y * CAMERA / (horizon * localDepth * localDepth),
+                                 -GRID * 4.0, GRID * 4.0);
+            estimated.y = max(0.0, estimated.y);
+        }
+        vec2 nearest = round(estimated / GRID);
+        for (int j = -1; j <= 1; j++) {
+            for (int i = -1; i <= 1; i++) {
+                vec2 world = (nearest + vec2(float(i), float(j))) * GRID;
+                if (!eventRegion(world, e)) ocean = max(ocean, drawWaterPoint(pixel, world, e, seed));
+            }
+        }
+    }
+    vec2 center = projectPoint(vec3(e.center.x, 0.0, e.center.y));
+    float d = CAMERA / (CAMERA + e.center.y);
+    if (e.age >= 0.0 && e.age <= 29.0 &&
+        abs(pixel.x - center.x) < e.size * 1.9 * d + 35.0 &&
+        abs(pixel.y - center.y) < 200.0 * d + 95.0) {
+        // A busca acompanha o volume móvel, incluindo os pontos afastados.
+        float centerRow = round(estimated.y / GRID);
+        for (int j = -4; j <= 4; j++) {
+            float row = centerRow + float(j);
+            float rowDepth = CAMERA / (CAMERA + row * GRID);
+            float col = round((pixel.x - iResolution.x * 0.5) / (GRID * rowDepth));
+            for (int i = -2; i <= 2; i++) {
+                vec2 world = vec2(col + float(i), row) * GRID;
+                if (eventRegion(world, e)) ocean = max(ocean, drawWaterPoint(pixel, world, e, seed));
+            }
+        }
+        ocean = max(ocean, drawWhale(pixel, e, seed));
+    }
+    return ocean;
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    prepareOcean(sessionSeed());
+    vec4 terminal = texture(iChannel0, fragCoord / iResolution.xy);
+    vec3 result = terminal.rgb;
+    float backgroundMask = 1.0 - smoothstep(0.035, 0.20, length(result - iBackgroundColor));
+    if (backgroundMask > 0.0) result += sea(fragCoord) * backgroundMask;
+    
+    fragColor = vec4(clamp(result, 0.0, 1.0), terminal.a);
+}
