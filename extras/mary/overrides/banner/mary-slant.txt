@@ -1,0 +1,11 @@
+Slant — Glenn Chappell (1993), based on Standard.
+Source: https://github.com/patorjk/figlet.js/blob/main/fonts/Slant.flf
+Mary rendering adaptation: Codex, 2026 (point strokes and wave deformation).
+Permission is hereby given to modify this font, as long as the
+modifier's name is placed on a comment line.
+
+    __  ___        ___         ____       __  __
+   /  |/  /       /   |       / __ \      \ \/ /
+  / /|_/ /       / /| |      / /_/ /       \  /
+ / /  / /       / ___ |     / _, _/        / /
+/_/  /_/       /_/  |_|    /_/ |_|        /_/
