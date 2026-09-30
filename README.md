@@ -21,6 +21,9 @@
   </p>
 </p>
 
+Este fork inclui o [perfil Skadi e seu instalador](extras/mary/README.md), com
+as configurações, fontes, efeitos e integração Bash do pacote portátil.
+
 ## About
 
 Ghostty is a terminal emulator that differentiates itself by being
