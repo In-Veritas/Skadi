@@ -1,0 +1,8 @@
+Texto atual: MARY
+Fonte atual: ANSI Shadow, da coleção FIGlet usada pelo TAAG.
+Gerador: https://patorjk.com/software/taag/#p=display&f=ANSI+Shadow&t=MARY
+Fonte: https://github.com/patorjk/figlet.js/blob/main/fonts/ANSI%20Shadow.flf
+Letras compostas com espaçamento completo; gradiente azul/turquesa em mary.py.
+Não há acesso à rede na abertura.
+
+A versão anterior FateGate Blu permanece nos arquivos mary-fategate.*.

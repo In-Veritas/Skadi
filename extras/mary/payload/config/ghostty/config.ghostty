@@ -1,0 +1,41 @@
+# Azul oceano e turquesa, rastro ao digitar e um fundo vivo discreto.
+theme = Catppuccin Mocha
+background = #081925
+foreground = #d4eef5
+selection-background = #174b60
+selection-foreground = #e7fcff
+# Acentos azuis/turquesa sobre a paleta do tema.
+palette = 2=#4fd1c5
+palette = 4=#5aa9f8
+palette = 5=#7abfff
+palette = 6=#36d6d0
+palette = 10=#79e2d6
+palette = 12=#82c8ff
+palette = 13=#9bdaff
+palette = 14=#81f3ed
+font-family = Adwaita Mono
+font-size = 13
+adjust-cell-height = 8%
+window-padding-x = 16
+window-padding-y = 14
+window-theme = ghostty
+title = Mary
+window-width = 100
+window-height = 34
+
+cursor-style = bar
+cursor-style-blink = false
+cursor-color = #5eead4
+
+# A transparência está na camada de efeitos, preservando a leitura do texto.
+background-opacity = 1
+background-image = backgrounds/ocean-turquoise.png
+background-image-opacity = 0.18
+background-image-fit = cover
+alpha-blending = native
+custom-shader = shaders/aurora-trail.glsl
+custom-shader-animation = true
+
+# Recarregar: Ctrl+Shift+vírgula.
+# Para pausar a animação contínua, troque custom-shader-animation para false.
+# Para remover todos os efeitos, comente a linha custom-shader acima.

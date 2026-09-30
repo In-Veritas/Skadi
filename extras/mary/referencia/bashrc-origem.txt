@@ -1,0 +1,31 @@
+#
+# ~/.bashrc
+#
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# Abertura Mary: uma vez por sessão; qualquer tecla pula sem ser descartada.
+if [[ ${TERM_PROGRAM-} == ghostty && -t 0 && -t 1 &&
+      ! ${__ghostty_mary_banner_shown-} &&
+      -r "$HOME/.config/ghostty/banner/mary.py" ]]; then
+    __ghostty_mary_banner_shown=1
+    python3 "$HOME/.config/ghostty/banner/mary.py"
+fi
+
+# Destaque de sintaxe enquanto digita no Ghostty.
+if [[ ${TERM_PROGRAM-} == ghostty && -t 0 && -t 1 &&
+      -r "$HOME/.local/share/blesh/ble.sh" ]]; then
+    source -- "$HOME/.local/share/blesh/ble.sh" --attach=none
+fi
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+PS1='[\u@\h \W]\$ '
+
+if [[ ${TERM_PROGRAM-} == ghostty &&
+      -r "$HOME/.config/blesh/mary-prompt.sh" ]]; then
+    source "$HOME/.config/blesh/mary-prompt.sh"
+fi
+
+[[ ! ${BLE_VERSION-} ]] || ble-attach

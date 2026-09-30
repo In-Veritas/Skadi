@@ -1,0 +1,30 @@
+{
+  "nome": "Mary Ghostty portátil",
+  "exportado_em": "2026-09-29",
+  "origem": {
+    "sistema": "Arch Linux x86_64",
+    "ghostty": "1.3.1-arch2",
+    "bash": "5.3.20",
+    "python": "3.14.7",
+    "blesh": "0.4.0-nightly+d81fd54"
+  },
+  "recursos": {
+    "banner": "MARY / ANSI Shadow",
+    "intervalo_banner_segundos": 0.48,
+    "intervalo_prompt_milissegundos": 180,
+    "opacidade_imagem": 0.18,
+    "familia_fonte": "Adwaita Mono"
+  },
+  "observacoes": [
+    "Recursos e ble.sh incluídos; aplicativos do sistema não incluídos.",
+    "Arquivo de prompt adaptado apenas para fallback de usuário genérico.",
+    "Módulos de integração suportam diretórios XDG e ble.sh em share/mary/blesh."
+  ],
+  "procedencia": {
+    "blesh": "https://github.com/akinomyoga/ble.sh",
+    "tema": "Tema Catppuccin Mocha distribuído com o Ghostty instalado; licença em licencas/Ghostty-LICENSE.",
+    "fontes": "Adwaita Mono do pacote adwaita-fonts instalado; licença SIL OFL incluída ao lado dos TTFs.",
+    "banner": "https://github.com/patorjk/figlet.js/blob/main/fonts/ANSI%20Shadow.flf",
+    "background": "Criado com o imagegen integrado nesta configuração. Prompt em payload/config/ghostty/backgrounds/ocean-turquoise.prompt.txt."
+  }
+}

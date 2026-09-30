@@ -1,0 +1,10 @@
+Quero importar para este computador a configuração Mary do meu Ghostty.
+Leia INSTRUCOES-PARA-CODEX.md desta pasta e faça a integração completa.
+Confira o sistema, o shell e a versão do Ghostty; use os arquivos incluídos,
+adapte os caminhos ao meu usuário e faça backup antes de alterar algo.
+Preserve meus aliases, histórico, funções e configurações que não tenham
+relação com a Mary. Não substitua meu .bashrc inteiro pelo exemplo.
+Quero manter o fundo azul/turquesa, rastro, banner MARY lento e pulável,
+destaque de comandos e prompt colorido com letras saltando em sequência.
+Teste a abertura, o pulo sem perder teclas, a digitação e a execução de
+comandos. Ao terminar, diga como ativar, ajustar e desfazer a integração.
