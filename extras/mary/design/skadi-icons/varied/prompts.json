@@ -1,0 +1,29 @@
+{
+  "tool": "image_gen (built-in)",
+  "variants": [
+    {
+      "name": "10-cauda-aerea",
+      "prompt": "Create ONE square raster app-icon concept for Skadi, a marine terminal. Bold readable design with few shapes, restrained detail. Palette exclusively dark navy #061B35, aquamarine #48DCCB, turquoise #26BFCB and clean WHITE; no cream/yellow/beige. No text, letters, mockups, bevels or glossy effects. Generous margins. Humpback anatomy recognizable: broad flukes with center notch, very long pectoral fins where shown, substantial curved body. View from directly overhead: a wide humpback tail seen just beneath clear dark water, flukes nearly horizontal, a narrow tail stock entering from TOP edge of composition. Strong aquamarine caustic stripes across the two broad navy flukes and a few irregular white identifying patches. One broken turquoise ripple circle surrounds it. Highly simplified Japanese stencil print, only about 6 broad shapes, NOT a tail rising vertically. No scenery."
+    },
+    {
+      "name": "11-mergulho",
+      "prompt": "Create ONE square raster app-icon concept for Skadi, a marine terminal. Bold readable design with few shapes, restrained detail. Palette exclusively dark navy #061B35, aquamarine #48DCCB, turquoise #26BFCB and clean WHITE; no cream/yellow/beige. No text, letters, mockups, bevels or glossy effects. Generous margins. Humpback anatomy recognizable: broad flukes with center notch, very long pectoral fins where shown, substantial curved body. A whole humpback diving vertically HEAD DOWN. Rounded broad head at bottom, two long pale pectoral flippers angled upward like swept wings, tail at top flexing slightly left. Curved navy back framed by aquamarine body and white belly, a tiny trail of three bubbles near tail. Hand-cut paper collage, confident irregular edges, mostly flat clean colors. Distinct tall compact silhouette."
+    },
+    {
+      "name": "12-espaco-negativo",
+      "prompt": "Create ONE square raster app-icon concept for Skadi, a marine terminal. Bold readable design with few shapes, restrained detail. Palette exclusively dark navy #061B35, aquamarine #48DCCB, turquoise #26BFCB and clean WHITE; no cream/yellow/beige. No text, letters, mockups, bevels or glossy effects. Generous margins. Humpback anatomy recognizable: broad flukes with center notch, very long pectoral fins where shown, substantial curved body. A bold turquoise ocean swell forming an open crescent. Inside it, a WHITE humpback silhouette is defined by the negative space of the wave, swimming horizontally toward the left, long pectoral flipper below. One clear wave and one clear whale; elegant organic shapes without clutter. Two-color stencil-style maritime emblem with minute print grain. No enclosed badge or circular border."
+    },
+    {
+      "name": "13-pontos",
+      "prompt": "Create ONE square raster app-icon concept for Skadi, a marine terminal. Bold readable design with few shapes, restrained detail. Palette exclusively dark navy #061B35, aquamarine #48DCCB, turquoise #26BFCB and clean WHITE; no cream/yellow/beige. No text, letters, mockups, bevels or glossy effects. Generous margins. Humpback anatomy recognizable: broad flukes with center notch, very long pectoral fins where shown, substantial curved body. Pointillist terminal-inspired whale icon: a curved humpback made entirely from a sparse orderly mesh of round turquoise and white dots on navy. The dot positions follow the whale's body contours, a long pectoral flipper separates from the belly, tail curls upward. Dots vary slightly in size, brighter white on the underside. Readable silhouette from a distance; about 150-250 visible large points total, no thousands of tiny noisy speckles, no connecting lines. No glow."
+    },
+    {
+      "name": "14-pixel",
+      "prompt": "Create ONE square raster app-icon concept for Skadi, a marine terminal. Bold readable design with few shapes, restrained detail. Palette exclusively dark navy #061B35, aquamarine #48DCCB, turquoise #26BFCB and clean WHITE; no cream/yellow/beige. No text, letters, mockups, bevels or glossy effects. Generous margins. Humpback anatomy recognizable: broad flukes with center notch, very long pectoral fins where shown, substantial curved body. Handcrafted retro 32x32 PIXEL ART aesthetic enlarged with perfectly hard nearest-neighbor square pixel edges. A chunky expressive humpback swimming upward right, large pale pectoral flipper, aquamarine back, navy contour and white underside, 3 square bubbles. Strict 4-color palette and no gradients, NO paper texture, no antialiasing. Balanced small-game icon composition, simple strong silhouette."
+    },
+    {
+      "name": "15-ondas-emblema",
+      "prompt": "Create ONE square raster app-icon concept for Skadi, a marine terminal. Bold readable design with few shapes, restrained detail. Palette exclusively dark navy #061B35, aquamarine #48DCCB, turquoise #26BFCB and clean WHITE; no cream/yellow/beige. No text, letters, mockups, bevels or glossy effects. Generous margins. Humpback anatomy recognizable: broad flukes with center notch, very long pectoral fins where shown, substantial curved body. Compact woodblock-print emblem: a near-square cluster of three interlocking sculptural waves seen at a low angle. The central foam crest subtly takes the shape of a broad humpback fluke with a central notch, without a separate whale body. One navy wave, one aquamarine wave, white crest; only a few thick curved lines. Strong asymmetry, slightly rough carved edges, no ornate frame, no tiny splashes, no circular swirl."
+    }
+  ]
+}

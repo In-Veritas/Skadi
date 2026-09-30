@@ -1,0 +1,245 @@
+{
+  "tool": "image_gen (built-in)",
+  "variants": [
+    {
+      "group": "jubarte",
+      "name": "01-essencial",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original side-swimming pose; only body, white underside, tiny eye and one throat line. Extremely sparse details, broad smooth shapes, 22% margins.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "02-equilibrada",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original pose with three throat grooves and two flipper spots, tiny tubercles, two flat turquoise shades. Balanced medium detail, 15% margins.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "03-marcas",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original pose; six asymmetrical navy skin identification patches, five short throat grooves and subtle flipper scalloping. Moderately detailed, never photorealistic.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "04-salto-diagonal",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Dynamic full-body BREACH angled 55 degrees upward to the right, long pectoral flipper extended, tail still near one SIMPLE white splash at bottom. Minimal details.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "05-salto-ondas",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Full humpback breaching at an angle LEFT above two moderately detailed turquoise waves, four large droplets and visible white throat pleats. Compact energetic composition.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "06-salto-vertical",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Vertical upward leap, rounded head above, both long fins spread outward, small tail below. Clean symmetrical-feeling but anatomically natural compact silhouette, no water.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "07-mergulho",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Head-first downward dive, tail curling overhead, body curved in a gentle S, long white flipper following the curve, three small bubbles. Sparse flat shapes.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "08-curva",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Swimming body forms a strong C-curve with tail curled toward head, the long flipper breaking the inner negative space. Sculptural compact icon, no surrounding circle.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "09-dorso",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Direct overhead view of whole humpback: wide dark back with turquoise rim, long pale fins extended sideways, tail below, simplified pale patches. Distinct natural anatomy.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "10-ventre",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Underwater view from below: white ventral belly dominates, navy throat grooves, aquamarine body rim and two long fins, tail away in perspective. Moderate detail.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "11-respirando",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. At water level, arched back and broad head emerging across one thin wave, a modest three-shape white breath plume above. Rest of body suggested underwater in turquoise.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "12-onda-simples",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original side pose accompanied by ONE low clean turquoise wave under the body, tiny eye and three short throat lines. Mostly white belly, minimal foam.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "13-onda-rica",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Side-swimming humpback framed by TWO expressive waves, white foam represented by a few broad cutouts, not small speckles. Medium detail but clear silhouette.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "14-margem-ampla",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original pose centered smaller, occupying only 52% of canvas width with very generous dark navy margin. Three throat lines, one flipper spot, refined small-icon proportions.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "15-close",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Tighter original side pose occupying 86% of width, all tail and fin tips fully inside the image, no cropping, tiny eye, five throat lines, moderate details.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "16-negativo",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Creative two-ink interpretation: whale is mostly pure white NEGATIVE SPACE in a wide aquamarine rolling swell. Recognizable long flipper and humpback head, large simple shapes.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "17-constelacao",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Creative humpback silhouette constructed from about 60 widely spaced turquoise dots connected by a FEW slender dark-blue lines, white dots on belly. Clear coherent body and long fin, no sky scenery.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "18-gravura",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original whale reinterpreted as restrained maritime linocut: 8 thick curved navy hatch strokes following body and throat, white underside, turquoise back. Imperfect organic edges, no tiny texture.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "19-aurora",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Creative breaching whale with exactly THREE flowing flat aquamarine/turquoise ribbon shapes trailing from its tail like an underwater current. Navy ground, white belly, no gradients/glow, clear whale first.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "jubarte",
+      "name": "20-lua",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Creative whale swimming below a white crescent that doubles as one ocean wave, composition forming an open tilted oval without frame. Simple navy/turquoise/aquamarine shapes, tasteful large negative space.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/09-jubarte-detalhada.png"
+    },
+    {
+      "group": "cauda",
+      "name": "01-essencial",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original raised white tail shape, ONE large navy patch on left fluke and two unequal spots on right, thin turquoise rim, one simple water line. Very few details.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "02-assimetrica",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Raised white fluke, left side 65% dark navy and right side almost all white with a small dark tip. Clear asymmetric real-humpback pigment pattern, aquamarine rim.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "03-ilhas",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Raised white fluke with five large irregular navy identification islands, no small speckles. One broad turquoise wave beneath, medium detail.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "04-cicatrizes",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. White fluke with uneven navy edging, six small unequal pigment patches and THREE slender turquoise scar marks. Slightly scalloped trailing edge, no barnacle clutter.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "05-quase-branca",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Almost entirely white underside with two very small navy spots and a navy border on one edge only; turquoise narrow stock, ample empty navy space, ultra-simple.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "06-margem-larga",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Original white-tail motif reduced to 50% canvas width, centered with very generous navy margin; three asymmetric pigment regions and one tiny turquoise water line.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "07-close",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. White tail fills 86% canvas width with all tips inside frame, bold navy asymmetrical patches and turquoise stock, no surrounding water.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "08-inclinada",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Raised white tail leaning 25 degrees left as animal banks into dive. Right fluke higher and slightly foreshortened, authentic central notch, simple turquoise water line.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "09-perspectiva",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Tail seen obliquely from the right, near fluke large and far fluke foreshortened; white underside marked by three dark navy islands. Dynamic silhouette.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "10-vista-cima",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Fluke seen from overhead just below water, tail stock entering from top, white irregular edge, navy pigmentation, TWO broad aquamarine light bands. No photorealistic caustics.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "11-mergulho",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Tail almost submerged: white flukes low above one navy/aquamarine swell, two thin turquoise draining water ribbons, simple horizonless composition.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "12-onda-calma",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Raised white tail centered over TWO low parallel clean aquamarine waves, restrained navy markings, very few details and broad margin.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "13-onda-forte",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Raised white tail between two large curling turquoise waves with white foam cutouts, wave detail moderate, flukes still dominant and clearly separated.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "14-onda-gravura",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. White asymmetric patterned tail above one stylized ocean swell made of FIVE thick engraved curved turquoise strokes; calm Japanese-print influence, no busy scenery.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "15-gotas",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. White fluke with irregular navy patches; FOUR large turquoise droplets hanging below scalloped tips, no wave line. Clear airy composition, medium margins.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "16-anel",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. White tail emerges through ONE broken turquoise elliptical ripple ring viewed obliquely, slight perspective and big clean patches; ring is water, no badge border.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "17-negativo",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Creative pure-white fluke formed by NEGATIVE SPACE between two aquamarine waves sweeping upward, navy patches retain identifying anatomy. Clever but immediately readable tail.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "18-mosaico",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Creative tail made from about twelve broad irregular flat aqua/white/navy mosaic pieces, with continuous external silhouette and authentic central notch; no tiny tiled clutter.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "19-reflexo",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. White patterned raised fluke above one horizontal water line, simplified turquoise reflection below with TWO horizontal gaps. Strong almost-square icon silhouette.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    },
+    {
+      "group": "cauda",
+      "name": "20-correntes",
+      "prompt": "Edit the reference into ONE distinct square Skadi desktop icon. Preserve its recognizable humpback/white-fluke identity while applying the specified variant. Cool terminal palette ONLY: navy #081925, turquoise #26E6CC, aquamarine #5EEAD4, blue #67B9FF and clean WHITE #FFFFFF. No yellow, cream, beige, sepia, no glossy 3D, no text. Simple bold raster illustration with restrained handcrafted edge, minimal paper texture. No photorealistic painting. Dark navy full-bleed background, no rounded-square frame. Keep deliberate generous margins unless variant specifies otherwise. Creative tail stock splits into THREE broad flowing turquoise ocean-current ribbons below white flukes, with asymmetrical navy identification patches. Restrained elegant movement, no extra ornaments.",
+      "reference": "/home/veritas/Mary/extras/mary/design/skadi-icons/patterns/06-cauda-branca.png"
+    }
+  ]
+}
