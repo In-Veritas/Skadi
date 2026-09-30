@@ -619,6 +619,27 @@ vec3 promptColor(vec3 marker) {
     return mix(vec3(94,234,212), vec3(103,185,255), marker.z) / 255.0;
 }
 
+// As cores vêm das faces semânticas do ble.sh, não de uma lista de palavras.
+// Projeção sobre a cor de tinta também reconhece bordas antialiasadas.
+float inkCoverage(vec3 pixel, vec3 ink) {
+    vec3 axis = ink - iBackgroundColor;
+    float coverage = clamp(dot(pixel - iBackgroundColor, axis) / dot(axis, axis), 0.0, 1.0);
+    float error = length(pixel - mix(iBackgroundColor, ink, coverage));
+    return coverage * (1.0 - smoothstep(0.002, 0.006, error));
+}
+
+float commandCoverage(vec3 pixel) {
+    return max(inkCoverage(pixel, vec3(95,233,211) / 255.0),
+           max(inkCoverage(pixel, vec3(104,212,254) / 255.0),
+               inkCoverage(pixel, vec3(131,185,254) / 255.0)));
+}
+
+vec2 segmentDistance(vec2 p, vec2 a, vec2 b) {
+    vec2 ab = b - a;
+    float along = clamp(dot(p - a, ab) / max(dot(ab, ab), 0.001), 0.0, 1.0);
+    return vec2(length(p - a - ab * along), along);
+}
+
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     prepareOcean(sessionSeed());
     float opening = introProgress();
@@ -664,6 +685,58 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
             }
         }
         result += vec3(0.32, 0.9, 1.0) * halo * 0.045 * atPulse * backgroundMask;
+    }
+
+    // Realce discreto da palavra reconhecida na linha que está sendo editada.
+    // Não ilumina saída/histórico nem os marcadores do prompt.
+    float rowDistance = abs(fragCoord.y - (iCurrentCursor.y - iCurrentCursor.w * 0.5));
+    float activeRow = 1.0 - smoothstep(iCurrentCursor.w * 0.48,
+                                      iCurrentCursor.w * 0.55, rowDistance);
+    if (iFocus > 0 && iCursorVisible > 0 && activeRow > 0.0 && textCoverage < 0.01) {
+        float recognized = commandCoverage(terminal.rgb) * activeRow;
+        result += (vec3(0.82, 1.0, 0.97) - result) * recognized * 0.13;
+    }
+
+    // Respeita cursores ocultos e evita rastros ao voltar de outra janela.
+    float age = max(iTime - iTimeCursorChange, 0.0);
+    if (iFocus > 0 && iCursorVisible > 0 && age < TRAIL_SECONDS
+        && iTimeCursorChange >= iTimeFocus) {
+        vec2 current = iCurrentCursor.xy + iCurrentCursor.zw * vec2(0.5, -0.5);
+        vec2 previous = iPreviousCursor.xy + iPreviousCursor.zw * vec2(0.5, -0.5);
+        vec2 movement = current - previous;
+        float travel = length(movement);
+        float height = max(iCurrentCursor.w, 12.0);
+
+        // Saltos entre linhas não riscam a tela inteira.
+        if (travel > 0.5 && travel < 180.0 && abs(movement.y) < height * 0.6) {
+            float progress = clamp(age / TRAIL_SECONDS, 0.0, 1.0);
+            float fade = 1.0 - smoothstep(0.0, 1.0, progress);
+            vec2 direction = movement / travel;
+            vec2 tail = previous - direction * height * 0.12;
+            tail = mix(tail, current, smoothstep(0.0, 1.0, progress));
+            vec2 scale = vec2(1.0, 0.85);
+            vec2 trail = segmentDistance(
+                fragCoord * scale, tail * scale, current * scale);
+            float distanceToTrail = trail.x;
+            float core = exp(-distanceToTrail * distanceToTrail / 5.0);
+            float glow = exp(-distanceToTrail * distanceToTrail / 18.0);
+            vec3 trailColor = mix(OCEAN_BLUE, TURQUOISE, trail.y);
+            result += trailColor * (0.075 * core + 0.045 * glow)
+                    * fade * backgroundMask;
+            // A tinta recém-escrita clareia sem lavar a cor de sintaxe.
+            // Limita o efeito ao avanço curto, excluindo backspace e saltos.
+            if (movement.x > 0.0 && travel <= iCurrentCursor.z * 2.1) {
+                float inGlyph = smoothstep(previous.x - iCurrentCursor.z * 0.5 - 1.0,
+                                          previous.x - iCurrentCursor.z * 0.5, fragCoord.x)
+                              * (1.0 - smoothstep(current.x - iCurrentCursor.z * 0.5,
+                                                  current.x - iCurrentCursor.z * 0.5 + 1.0, fragCoord.x));
+                float ink = smoothstep(0.04, 0.3, length(terminal.rgb - iBackgroundColor));
+                float flash = 1.0 - smoothstep(0.0, 0.42, age);
+                if (promptMarker(terminal.rgb).x == 0.0)
+                    result += (vec3(0.88, 1.0, 0.98) - result)
+                            * ink * inGlyph * activeRow * flash * 0.24;
+            }
+        }
     }
 
     if (opening >= 0.0) result += introTitle(fragCoord, opening) * backgroundMask;
