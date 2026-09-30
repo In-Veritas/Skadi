@@ -274,3 +274,6 @@ a identidade `com.mitchellh.ghostty` para os atalhos e janelas existentes.
 O ícone e o lançador entram no mesmo backup das demais configurações.
 A instalação cobre tamanhos de 16 a 1024 px e variantes HiDPI: substituir
 apenas 512 px deixa o GTK escolher os ícones pequenos antigos do sistema.
+
+O lançador usa um nome de ícone derivado do conteúdo da imagem, evitando
+que a busca do KDE mantenha uma versão anterior em cache após a troca.

@@ -3,6 +3,7 @@
 
 import argparse
 from datetime import datetime
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -96,8 +97,12 @@ fi''')
     # Mantém a identidade do aplicativo para que janelas e atalhos fixados
     # usem o mesmo ícone. O PNG escolhido é copiado sem modificar a arte.
     icon = ROOT / "design/skadi-icons/caudas-v2/anel/06-gravura.png"
-    icon_target = data / "icons/hicolor/512x512/apps/com.mitchellh.ghostty.png"
     icon_bytes = icon.read_bytes()
+    # O lançador pode manter imagens em memória pelo caminho, mesmo após
+    # reconstruir o índice. Um nome por conteúdo invalida também esse cache.
+    icon_name = "skadi-" + hashlib.sha256(icon_bytes).hexdigest()[:16] + ".png"
+    icon_target = data / "icons/hicolor/512x512/apps" / icon_name
+    changes[icon_target] = icon_bytes
     # A busca do tema prefere o tamanho exato do sistema a um ícone local
     # de 512 px. Cubra também os tamanhos pequenos e as variantes HiDPI.
     # GTK/KDE fazem a redução do PNG original, sem alterar a ilustração.
