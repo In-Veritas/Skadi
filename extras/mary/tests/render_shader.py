@@ -132,6 +132,8 @@ void main() {
         SprayPoint mist = sprayParticle(1, e);
         outputColor = vec4(0.5 + drop.position.y / 256.0,
                            0.5 + mist.position.y / 256.0, mist.visibility, 1.0);
+    } else if (maryTestMode == 15) {
+        outputColor = vec4(drawWhale(gl_FragCoord.xy, e, sessionSeed()), 1.0);
     } else if (maryTestMode == 14) {
         float kind = gl_FragCoord.y < iResolution.y / 3.0 ? 0.0 :
                      (gl_FragCoord.y < iResolution.y * 2.0 / 3.0 ? 3.0 : 2.0);
@@ -434,6 +436,21 @@ assert ranges[0] + ranges[1] > 5 and ranges[2] > 5, orbital
 # Contato com corpo separado: a água abre, não penetra e fecha depois.
 metadata = render(0, 2).getpixel((0, 0))
 delay = metadata[0] / 255 * 32
+# Estado real do banner: a paleta 251 fica em 9,6 s indefinidamente.
+# Corpo e jato devem aparecer tanto com o título parado quanto após digitar.
+for phase in (6, 10):
+    opening(8.0)
+    assert render(delay + phase, 15).convert('RGB').getbbox() is None
+    f3(at('iPalette[251]'), 198 / 255, 198 / 255, 198 / 255)
+    visible = render(delay + phase, 15)
+    assert visible.convert('RGB').getbbox(), 'whale body/spray must be visible'
+    opening(9.6)
+    for fade in (0.0, 1.0):
+        f3(at('iPalette[250]'), 18 / 255, fade, fade)
+        assert render(delay + phase, 15).tobytes() == visible.tobytes()
+    held = render(delay + phase)
+    f3(at('iPalette[251]'), 198 / 255, 198 / 255, 198 / 255)
+    assert held.tobytes() == render(delay + phase).tobytes()
 rest = render(0, 1).getpixel((0, 0))
 pushed = render(delay + 7, 1).getpixel((0, 0))
 returned = render(delay + 30, 1).getpixel((0, 0))

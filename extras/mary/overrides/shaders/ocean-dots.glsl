@@ -497,7 +497,10 @@ vec3 drawSpray(vec2 pixel, OceanEvent e) {
 }
 
 vec3 drawWhale(vec2 pixel, OceanEvent e, uint seed) {
-    if (introProgress() >= 0.0) return vec3(0.0);
+    // O marcador permanece após a revelação para manter o título até digitar.
+    // Só esconda a baleia enquanto os pontos do mar ainda estão aparecendo.
+    float opening = introProgress();
+    if (opening >= 0.0 && opening * 13.6 < 9.2) return vec3(0.0);
     if (e.age < 0.0 || e.age > 17.0) return vec3(0.0);
     vec3 result = vec3(0.0);
     float screenX = pixel.x - iResolution.x * 0.5;
