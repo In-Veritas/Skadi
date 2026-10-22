@@ -368,12 +368,6 @@ fn addLinuxAppResources(
         try steps.append(b.allocator, &copy.step);
     }
 
-    // Right click menu action for Plasma desktop
-    try steps.append(b.allocator, &b.addInstallFile(
-        b.path("dist/linux/ghostty_dolphin.desktop"),
-        "share/kio/servicemenus/com.mitchellh.ghostty.desktop",
-    ).step);
-
     // Right click menu action for Nautilus. Note that this _must_ be named
     // `ghostty.py`. Using the full app id causes problems (see #5468).
     try steps.append(b.allocator, &b.addInstallFile(
