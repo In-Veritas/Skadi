@@ -14,6 +14,11 @@ parser.add_argument('--output-dir', type=Path, default=Path('/tmp/mary-qa'))
 parser.add_argument('--skip-animation', action='store_true', help='Executa verificações e quadros sem exportar GIF')
 parser.add_argument('--shader', type=Path, help='Shader alternativo para comparar desempenho')
 parser.add_argument('--benchmark', action='store_true', help='Mede quadros completos com leitura GPU sincronizada')
+parser.add_argument('--export-preview', action='store_true', help='Exporta somente uma prévia isolada, sem executar QA')
+parser.add_argument('--preview-name', default='preview')
+parser.add_argument('--preview-seconds', type=float, default=8)
+parser.add_argument('--preview-start', type=float, default=0)
+parser.add_argument('--preview-seed', type=int, default=192837)
 args = parser.parse_args()
 args.output_dir.mkdir(parents=True, exist_ok=True)
 root = Path(__file__).resolve().parents[1]
@@ -45,7 +50,7 @@ config = P()
 n = I()
 assert choose(d, attrs, C.byref(config), 1, C.byref(n)) and n.value
 ctx = context(d, config, None, (I * 3)(12440, 3, 12344))
-w, h = (1000, 700)
+w, h = (720, 504) if args.export_preview else (1000, 700)
 surf = surface(d, config, (I * 5)(12375, w, 12374, h, 12344))
 assert current(d, surf, surf, ctx)
 create = bind(G, 'glCreateShader', U, [U])
@@ -132,6 +137,17 @@ void main() {
         SprayPoint mist = sprayParticle(1, e);
         outputColor = vec4(0.5 + drop.position.y / 256.0,
                            0.5 + mist.position.y / 256.0, mist.visibility, 1.0);
+    } else if (maryTestMode == 18) {
+        GullEvent g = gullEvent(iTime, sessionSeed());
+        outputColor = vec4((mod(iTime,56.0)-g.age)/56.0, g.duration/24.0, g.direction*.5+.5, 1.0);
+    } else if (maryTestMode == 19) {
+        outputColor = vec4(drawGull(gl_FragCoord.xy),1.0);
+    } else if (maryTestMode == 16) {
+        WaveSettings w = oceanWaves[0];
+        outputColor = vec4(w.amplitude / 20.0, 0.5 + w.direction * 0.5, 1.0);
+    } else if (maryTestMode == 17) {
+        float phase = oceanWaves[0].phase;
+        outputColor = vec4(0.5 + sin(phase)*0.5, 0.5 + cos(phase)*0.5, 0.0, 1.0);
     } else if (maryTestMode == 15) {
         outputColor = vec4(drawWhale(gl_FragCoord.xy, e, sessionSeed()), 1.0);
     } else if (maryTestMode == 14) {
@@ -235,6 +251,35 @@ def set_seed(seed):
         f3(at(f'iPalette[{252 + index}]'), *(value / 255 for value in rgb))
 
 
+if args.export_preview:
+    import subprocess
+    set_seed(args.preview_seed)
+    frames = []
+    fps = 30
+    count = round(args.preview_seconds * fps)
+    video = args.output_dir / (args.preview_name + '.mp4')
+    encoder = subprocess.Popen(['ffmpeg', '-v', 'error', '-y', '-f', 'rawvideo',
+        '-pixel_format', 'rgb24', '-video_size', f'{w}x{h}', '-framerate', str(fps),
+        '-i', 'pipe:0', '-an', '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p',
+        '-movflags', '+faststart', str(video)], stdin=subprocess.PIPE)
+    try:
+        for index in range(count):
+            im = render(args.preview_start + index / fps).convert('RGB')
+            encoder.stdin.write(im.tobytes())
+            frames.append(im)
+            if index % 60 == 0:
+                print(f'{args.preview_name}: {index}/{count}', flush=True)
+    finally:
+        encoder.stdin.close()
+    assert encoder.wait() == 0
+    palette = frames[len(frames)//2].quantize(colors=192)
+    indexed = [im.quantize(palette=palette, dither=Image.Dither.NONE) for im in frames]
+    indexed[0].save(args.output_dir / (args.preview_name + '.gif'), save_all=True,
+        append_images=indexed[1:], loop=0, duration=[(30,30,40)[i%3] for i in range(count)],
+        disposal=1, optimize=False)
+    frames[round(count*.5)].save(args.output_dir / (args.preview_name + '.png'))
+    raise SystemExit(0)
+
 if args.benchmark:
     set_seed(192837)
     onset = render(0, 2).getpixel((0, 0))[0] / 255 * 32
@@ -255,6 +300,24 @@ if args.benchmark:
         elapsed = time.perf_counter() - start
         print(f'fase={phase}: {elapsed / 24 * 1000:.2f} ms/quadro; {24 / elapsed:.1f} quadros/s (desenho sincronizado, sem readback)', flush=True)
     raise SystemExit(0)
+
+# A single bird starts and finishes entirely offscreen, in either direction.
+gull_directions=set()
+gull_heights=set()
+for seed in (192837,738291,42,99173):
+    set_seed(seed)
+    encoded=render(0,18).getpixel((0,0))
+    start=encoded[0]/255*56
+    duration=encoded[1]/255*24
+    gull_directions.add(encoded[2])
+    assert render(start+.3,19).convert('RGB').getbbox() is None
+    assert render(start+duration-.3,19).convert('RGB').getbbox() is None
+    middle=render(start+duration*.5,19).convert('RGB')
+    bounds=middle.getbbox()
+    assert bounds is not None
+    assert bounds[2]-bounds[0]<100 and bounds[3]-bounds[1]<100
+    gull_heights.add(bounds[1])
+assert len(gull_directions)==2 and len(gull_heights)>1
 
 # Intro: mar oculto durante a descida, revelação ordenada e término completo.
 set_seed(192837)
@@ -427,11 +490,47 @@ for frame_number in range(721):
     last = values
 assert max(last) == 0
 
+# A seed altera altura; o clima altera altura/direção sem descontinuidade.
+heights = []
+for seed in (192837, 918273, 432198, 712345):
+    set_seed(seed)
+    states = [render(t, 16).getpixel((0, 0)) for t in (0, 60, 120, 180, 240, 300)]
+    heights.append(states[0][0])
+    assert max(p[0] for p in states)-min(p[0] for p in states) >= 8, states
+    assert max(max(p[c] for p in states)-min(p[c] for p in states) for c in (1, 2)) >= 4, states
+    for t in (30, 60, 120, 3600, 7200):
+        for mode in (16, 17):
+            a, b = [render(at_time, mode).getpixel((0, 0)) for at_time in (t, t+1/60)]
+            assert max(abs(x-y) for x,y in zip(a,b)) <= 3, (seed, t, mode, a, b)
+assert max(heights)-min(heights) >= 15, heights
+set_seed(192837)
+
 # Movimento próprio da água em três eixos, mesmo sem baleia presente.
 orbital = [render(t, 3).getpixel((0, 0)) for t in (0, 1, 2, 3, 4, 5, 6)]
 ranges = [max(p[channel] for p in orbital) - min(p[channel] for p in orbital)
           for channel in range(3)]
 assert ranges[0] + ranges[1] > 5 and ranges[2] > 5, orbital
+
+# A primeira visita acompanha o relógio do banner, não iTime ou a digitação.
+def first_visit(seconds):
+    value = round(seconds / 72 * 65535)
+    f3(at('iPalette[249]'), 19 / 255, (value >> 8) / 255, (value & 255) / 255)
+opening(9.6)
+for seconds in (5.0, 9.2, 10.1):
+    first_visit(seconds)
+    assert render(100, 15).convert('RGB').getbbox() is None
+for seconds in (10.6, 12.6, 17.2):
+    first_visit(seconds)
+    before = render(0, 15)
+    assert before.convert('RGB').getbbox(), seconds
+    assert render(100, 15).convert('RGB').getbbox()
+    assert render(0, 4).tobytes() == render(100, 4).tobytes(), 'window clock must not change pose'
+    f3(at('iPalette[250]'), 18 / 255, 1, 1)
+    assert before.tobytes() == render(0, 15).tobytes(), 'typing must not remove whale'
+first_visit(40)
+assert render(100, 15).convert('RGB').getbbox() is None
+f3(at('iPalette[249]'), 0, 0, 0)
+f3(at('iPalette[251]'), 198 / 255, 198 / 255, 198 / 255)
 
 # Contato com corpo separado: a água abre, não penetra e fecha depois.
 metadata = render(0, 2).getpixel((0, 0))

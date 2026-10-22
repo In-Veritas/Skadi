@@ -4,7 +4,7 @@ const float SEA_HORIZON = 0.60;
 const float GRID = 24.0;
 const float CAMERA = 560.0;
 const float EVENT_SECONDS = 72.0;
-const float WEATHER_SECONDS = 28.0;
+const float FIRST_WHALE_AT = 10.2; // revelação completa aos 9,2 s + 1 s
 const float PROMPT_LIFT_PX = 3.0;
 const float TRAIL_SECONDS = 0.55;
 const vec3 OCEAN_BLUE = vec3(0.20, 0.52, 1.00);
@@ -15,6 +15,12 @@ const vec3 TURQUOISE = vec3(0.15, 0.90, 0.80);
 float introProgress() {
     vec3 control = round(iPalette[251] * 255.0);
     return control.r == 17.0 ? (control.g * 256.0 + control.b) / 65535.0 : -1.0;
+}
+
+// Relógio da primeira visita: independente do relógio da janela e do fade.
+float firstWhaleClock() {
+    vec3 control = round(iPalette[249] * 255.0);
+    return control.r == 19.0 ? (control.g * 256.0 + control.b) / 65535.0 * 72.0 : -1.0;
 }
 
 float introWaterVisibility(vec2 world) {
@@ -168,7 +174,9 @@ void poseWhale(inout OceanEvent e) {
 
 OceanEvent sceneEvent(float time, uint seed) {
     OceanEvent e;
-    e.seed = hashBits(seed ^ uint(floor(time / EVENT_SECONDS)));
+    float first = firstWhaleClock();
+    bool firstVisit = first >= 0.0 && first < 72.0;
+    e.seed = hashBits(seed ^ (firstVisit ? 0x534b4144u : uint(floor(time / EVENT_SECONDS))));
     float depth = mix(0.36, 0.69, randomValue(e.seed, 1u));
     e.origin = vec2((randomValue(e.seed, 2u) - 0.5) * iResolution.x * 0.35 / depth,
                     CAMERA * (1.0 / depth - 1.0));
@@ -179,8 +187,16 @@ OceanEvent sceneEvent(float time, uint seed) {
     e.side = vec2(-e.forward.y, e.forward.x);
     e.speed = mix(30.0, 45.0, randomValue(e.seed, 8u));
     e.age = mod(time, EVENT_SECONDS) - mix(8.0, 27.0, randomValue(e.seed, 6u));
+    if (firstVisit) {
+        // A primeira subida começa um segundo após o último ponto do mar,
+        // em posição sorteada por sessão e independente da digitação.
+        e.age = first < FIRST_WHALE_AT ? -1.0 : 3.0 + first - FIRST_WHALE_AT;
+    }
     e.wind = mix(-1.0, 1.0, randomValue(e.seed, 7u));
     poseWhale(e);
+    // Entre pela superfície sem acelerar artificialmente o avanço do corpo.
+    if (firstVisit) e.bodyY -= e.size * 0.15
+        * (1.0 - smoothstep(FIRST_WHALE_AT, FIRST_WHALE_AT + 0.6, first));
     return e;
 }
 
@@ -205,12 +221,29 @@ void prepareOcean(uint seed) {
     const float amplitudes[6] = float[6](11.0, 8.0, 4.7, 2.8, 1.4, 0.65);
     const float spread[6] = float[6](0.0, 0.34, -0.28, 0.55, -0.62, 0.18);
     float prevailing = randomValue(seed, 21u) * 6.283185;
-    float windAngle = prevailing + 0.32 * sin(iTime / WEATHER_SECONDS * 0.55);
+    // Cada sessão sorteia uma altura, um ritmo e um clima próprios. Frequências
+    // lentas e diferentes impedem mudanças bruscas ou um ciclo curto repetido.
+    float sessionHeight = mix(0.76, 1.27, randomValue(seed, 30u));
+    float sessionSpeed = mix(0.93, 1.08, randomValue(seed, 31u));
+    float weatherPhase = randomValue(seed, 29u) * 6.283185;
+    float weatherRate = mix(0.020, 0.031, randomValue(seed, 32u));
+    float weather = sin(iTime * weatherRate + weatherPhase);
+    float swell = sin(iTime * weatherRate * 0.613 + weatherPhase * 1.73);
+    float turn = 0.15 * weather + 0.07 * swell;
+    float windAngle = prevailing + turn;
     vec2 wind = vec2(cos(windAngle), sin(windAngle));
-    float gust = 0.88 + 0.12 * sin(iTime * 0.075 + randomValue(seed, 29u) * 6.283185);
+    float gust = 1.0 + 0.10 * weather + 0.05 * swell;
+    // Integra a velocidade: multiplicar iTime por um ritmo variável causaria
+    // saltos e aceleração crescente nas sessões longas.
+    float travelTime = sessionSpeed * (iTime
+        + 0.09 / weatherRate * (cos(weatherPhase) - cos(iTime * weatherRate + weatherPhase))
+        + 0.035 / (weatherRate * 0.613)
+            * (cos(weatherPhase * 1.73) - cos(iTime * weatherRate * 0.613 + weatherPhase * 1.73)));
     for (int index = 0; index < WAVE_COUNT; index++) {
         uint key = hashBits(seed ^ (uint(index + 1) * 0x9e3779b9u));
-        float angle = prevailing + spread[index] + mix(-0.16, 0.16, randomValue(key, 22u));
+        float response = index < 2 ? 0.45 : 1.0;
+        float angle = prevailing + spread[index] + turn * response
+            + mix(-0.22, 0.22, randomValue(key, 22u));
         WaveSettings w;
         w.direction = vec2(cos(angle), sin(angle));
         float wavelength = wavelengths[index] * mix(0.88, 1.12, randomValue(key, 23u));
@@ -218,9 +251,11 @@ void prepareOcean(uint seed) {
         // Dispersão de águas profundas: omega² = g*k, com g em unidades da cena.
         w.omega = sqrt(85.0 * w.k);
         float alignment = pow(max(0.0, dot(w.direction, wind)), 2.0);
-        float energy = index < 2 ? 0.94 : gust * (0.65 + 0.35 * alignment);
+        float energy = sessionHeight * (index < 2
+            ? 0.94 * (1.0 + 0.12 * swell)
+            : gust * (0.65 + 0.35 * alignment));
         w.amplitude = amplitudes[index] * energy;
-        w.phase = randomValue(key, 24u) * 6.283185;
+        w.phase = randomValue(key, 24u) * 6.283185 - travelTime * w.omega;
         oceanWaves[index] = w;
     }
 }
@@ -232,7 +267,7 @@ vec3 waveDisplacement(vec2 world, uint seed) {
     waterCompression = 0.0;
     for (int index = 0; index < WAVE_COUNT; index++) {
         WaveSettings w = oceanWaves[index];
-        float phase = dot(samplePosition, w.direction) * w.k - iTime * w.omega + w.phase;
+        float phase = dot(samplePosition, w.direction) * w.k + w.phase;
         float sine = sin(phase);
         float cosine = cos(phase);
         // Perfil exponencial: crista estreita, vale largo, altura média zero.
@@ -500,7 +535,7 @@ vec3 drawWhale(vec2 pixel, OceanEvent e, uint seed) {
     // O marcador permanece após a revelação para manter o título até digitar.
     // Só esconda a baleia enquanto os pontos do mar ainda estão aparecendo.
     float opening = introProgress();
-    if (opening >= 0.0 && opening * 13.6 < 9.2) return vec3(0.0);
+    if (firstWhaleClock() < 0.0 && opening >= 0.0 && opening * 13.6 < 9.2) return vec3(0.0);
     if (e.age < 0.0 || e.age > 17.0) return vec3(0.0);
     vec3 result = vec3(0.0);
     float screenX = pixel.x - iResolution.x * 0.5;
@@ -643,6 +678,69 @@ vec2 segmentDistance(vec2 p, vec2 a, vec2 b) {
     return vec2(length(p - a - ab * along), along);
 }
 
+// Uma gaivota por visita; posição fora da tela nas duas extremidades.
+struct GullEvent {
+    vec3 center;
+    float age;
+    float duration;
+    float direction;
+    float phase;
+};
+GullEvent gullEvent(float time, uint seed) {
+    uint key = hashBits(seed ^ 0x47554c4cu ^ uint(floor(time / 56.0)));
+    GullEvent e;
+    e.age = mod(time, 56.0) - mix(14.0, 24.0, randomValue(key, 1u));
+    e.duration = mix(12.0, 18.0, randomValue(key, 2u));
+    e.direction = randomValue(key, 3u) < 0.5 ? -1.0 : 1.0;
+    e.phase = randomValue(key, 4u) * 6.283185;
+    float depth = mix(0.45, 0.70, randomValue(key, 5u));
+    float margin = 90.0 + iResolution.x * 0.05;
+    float screenX = mix(-margin, iResolution.x + margin, e.age / e.duration);
+    if (e.direction < 0.0) screenX = iResolution.x - screenX;
+    float screenY = iResolution.y * mix(0.40, 0.68, randomValue(key, 6u));
+    e.center = vec3((screenX-iResolution.x*0.5)/depth,
+        (screenY-iResolution.y*SEA_HORIZON*(1.0-depth))/depth
+            + 9.0*sin(e.age*0.7+e.phase), CAMERA*(1.0/depth-1.0));
+    return e;
+}
+vec3 gullDot(vec2 pixel, GullEvent e, vec3 point, vec3 color, float visibility) {
+    point.x = e.center.x + (point.x-e.center.x)*e.direction;
+    return dotColor(pixel, point, color, visibility);
+}
+vec3 drawGull(vec2 pixel) {
+    float opening = introProgress();
+    if (opening >= 0.0 && opening*13.6 < 9.2) return vec3(0.0);
+    GullEvent event = gullEvent(iTime, sessionSeed());
+    if (event.age < 0.0 || event.age > event.duration) return vec3(0.0);
+    vec3 center = event.center;
+    if (distance(pixel, projectPoint(center)) > 90.0+iResolution.x*0.05) return vec3(0.0);
+    vec3 ink = vec3(0.0);
+    vec3 pale = mix(TURQUOISE, vec3(.72,.88,.93), .65);
+    float flap=sin(event.age*5.2+event.phase);
+    float glide=1.0-.8*smoothstep(2.3,3.3,event.age)*(1.0-smoothstep(5.3,6.3,event.age));
+    for(int side=-1;side<=1;side+=2) {
+        for(int j=1;j<=8;j++) {
+            float span=float(j)/8.0;
+            float wingY=(10.0*span+22.0*span*flap*glide);
+            float wingX=-10.0*span*span;
+            for(int chord=0;chord<2;chord++) {
+                vec3 point=center+vec3(wingX-float(chord)*5.0*(1.0-span),wingY, float(side)*span*42.0);
+                // Bank the wing plane enough to read both spans at low eye level.
+                point.x+=float(side)*span*26.0;
+                ink=max(ink,gullDot(pixel, event,point,pale,1.7));
+            }
+        }
+    }
+    for(int j=0;j<7;j++) {
+        float x=float(j)*3.3-10.0;
+        ink=max(ink,gullDot(pixel, event,center+vec3(x,2.0*sin(float(j)*.5),0.0),pale,1.7));
+    }
+    ink=max(ink,gullDot(pixel, event,center+vec3(16,1,0),TURQUOISE,1.7));
+    for(int side=-1;side<=1;side+=2)
+        ink=max(ink,gullDot(pixel, event,center+vec3(-16,0,float(side)*5.0),pale,1.5));
+    return ink;
+}
+
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     prepareOcean(sessionSeed());
     float opening = introProgress();
@@ -744,5 +842,6 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
 
     if (opening >= 0.0) result += introTitle(fragCoord, opening) * backgroundMask;
 
+    result += drawGull(fragCoord) * backgroundMask;
     fragColor = vec4(clamp(result, 0.0, 1.0), terminal.a);
 }
