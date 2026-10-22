@@ -33,6 +33,7 @@ const key = @import("../key.zig");
 const adw_version = @import("../adw_version.zig");
 const gtk_version = @import("../gtk_version.zig");
 const winprotopkg = @import("../winproto.zig");
+const WindowIcons = @import("../WindowIcons.zig");
 const ApprtApp = @import("../App.zig");
 const Common = @import("../class.zig").Common;
 const WeakRef = @import("../weak_ref.zig").WeakRef;
@@ -182,6 +183,8 @@ pub const Application = extern struct {
         /// State and logic for the underlying windowing protocol.
         winproto: winprotopkg.App,
 
+        window_icons: WindowIcons = .{},
+
         /// The global shortcut logic.
         global_shortcuts: *GlobalShortcuts,
 
@@ -323,6 +326,8 @@ pub const Application = extern struct {
                 );
             },
         };
+        // Keep notification attribution consistent with the Skadi launcher.
+        glib.setApplicationName("Skadi");
         adw.init();
 
         const single_instance = switch (config.@"gtk-single-instance") {
@@ -458,6 +463,7 @@ pub const Application = extern struct {
         priv.config.unref();
         priv.winproto.deinit();
         priv.open_uri.deinit();
+        priv.window_icons.deinit(alloc);
         priv.global_shortcuts.unref();
         if (priv.saved_language) |language| alloc.free(language);
         if (gdk.Display.getDefault()) |display| {
@@ -483,6 +489,10 @@ pub const Application = extern struct {
     /// this wherever possible so we get leak detection in debug/tests.
     pub fn allocator(self: *Self) std.mem.Allocator {
         return self.private().core_app.alloc;
+    }
+
+    pub fn windowIcons(self: *Self) *WindowIcons {
+        return &self.private().window_icons;
     }
 
     /// Get the original language that Ghostty was launched with. This returns a
@@ -2288,7 +2298,7 @@ const Action = struct {
 
         // Set a default title if we don't already have one
         const t = switch (n.title.len) {
-            0 => "Ghostty",
+            0 => "Skadi",
             else => n.title,
         };
 

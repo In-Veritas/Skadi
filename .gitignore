@@ -32,3 +32,36 @@ glad.zip
 vgcore.*
 
 /sprite_face_test*
+
+# Local Skadi studies and diagnostic output; ship only the selected icons.
+/extras/mary/design/event-studies/
+/extras/mary/design/whale-studies/
+/extras/mary/design/skadi-icons/collection/jubarte/15-close-transparente.*
+/extras/mary/design/skadi-icons/2026-10-18-caudas-100/*
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/selection.json
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/
+/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/*
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-004.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-006.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-007.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-012.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-020.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-026.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-033.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-043.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-045.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-055.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-064.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-066.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-068.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-070.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-075.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-087.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-089.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-091.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-096.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/icons/skadi-097.png
+/extras/mary/tests/*_result.json
+/extras/mary/tests/probe_taskbar_icons.py
+__pycache__/
+*.pyc

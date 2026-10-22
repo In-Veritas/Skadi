@@ -258,6 +258,12 @@ pub const Window = struct {
         _ = env;
     }
 
+    pub fn setApplicationId(self: *Window, id: [:0]const u8) void {
+        const surface = self.apprt_window.as(gtk.Native).getSurface() orelse return;
+        const toplevel = gobject.ext.cast(gdk_wayland.WaylandToplevel, surface) orelse return;
+        toplevel.setApplicationId(id);
+    }
+
     pub fn setUrgent(self: *Window, urgent: bool) !void {
         const activation = self.globals.get(.xdg_activation) orelse return;
 

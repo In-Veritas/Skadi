@@ -173,4 +173,14 @@ pub const Window = union(Protocol) {
             inline else => |*v| try v.setUrgent(urgent),
         }
     }
+
+    /// Window identity only; the application's D-Bus name stays unchanged.
+    pub fn setApplicationId(self: *Window, id: [:0]const u8) void {
+        if (comptime build_options.wayland) {
+            switch (self.*) {
+                .wayland => |*v| v.setApplicationId(id),
+                else => {},
+            }
+        }
+    }
 };

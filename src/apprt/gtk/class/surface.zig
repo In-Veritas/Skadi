@@ -1765,7 +1765,7 @@ pub const Surface = extern struct {
         };
 
         const t = switch (title.len) {
-            0 => "Ghostty",
+            0 => "Skadi",
             else => title,
         };
 

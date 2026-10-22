@@ -19,6 +19,7 @@ const gtk_version = @import("../gtk_version.zig");
 const adw_version = @import("../adw_version.zig");
 const gresource = @import("../build/gresource.zig");
 const winprotopkg = @import("../winproto.zig");
+const WindowIcons = @import("../WindowIcons.zig");
 const Common = @import("../class.zig").Common;
 const Config = @import("config.zig").Config;
 const Application = @import("application.zig").Application;
@@ -252,6 +253,9 @@ pub const Window = extern struct {
         /// State and logic for windowing protocol for a window.
         winproto: winprotopkg.Window,
 
+        /// Assigned on first map; retained through minimize/remap and reloads.
+        window_icon: ?WindowIcons.Choice = null,
+
         /// Kind of hacky to have this but this lets us know if we've
         /// initialized any single surface yet. We need this because we
         /// gate default size on this so that we don't resize the window
@@ -332,6 +336,7 @@ pub const Window = extern struct {
         // We initialize our windowing protocol to none because we can't
         // actually initialize this until we get realized.
         priv.winproto = .none;
+        priv.window_icon = null;
 
         // Add our dev CSS class if we're in debug mode.
         if (comptime build_config.is_debug) {
@@ -346,6 +351,13 @@ pub const Window = extern struct {
         // Set our window icon. We can't set this in the blueprint file
         // because its dependent on the build config.
         self.as(gtk.Window).setIconName(build_config.bundle_id);
+        _ = gtk.Widget.signals.map.connect(
+            self.as(gtk.Widget),
+            *Self,
+            windowMap,
+            self,
+            .{ .after = true },
+        );
 
         // Initialize our actions
         self.initActionMap();
@@ -1437,6 +1449,11 @@ pub const Window = extern struct {
     fn dispose(self: *Self) callconv(.c) void {
         const priv = self.private();
 
+        if (priv.window_icon) |choice| {
+            Application.default().windowIcons().release(choice);
+            priv.window_icon = null;
+        }
+
         if (priv.handle_active_state_source) |v| {
             if (glib.Source.remove(v) == 0) {
                 log.warn("unable to remove handle active state source", .{});
@@ -1478,6 +1495,21 @@ pub const Window = extern struct {
 
     //---------------------------------------------------------------
     // Signal handlers
+
+    fn windowMap(_: *gtk.Widget, self: *Window) callconv(.c) void {
+        const priv = self.private();
+        // Layer-shell quick terminals do not have an xdg_toplevel or taskbar
+        // button, and must not consume the first normal window's base icon.
+        if (self.isQuickTerminal() or priv.winproto != .wayland) return;
+        const app = Application.default();
+        const icons = app.windowIcons();
+        const choice = priv.window_icon orelse icons.acquire(app.allocator()) orelse return;
+        priv.window_icon = choice;
+        const icon = icons.name(choice) orelse return;
+        self.as(gtk.Window).setIconName(icon);
+        priv.winproto.setApplicationId(WindowIcons.application_id);
+        log.info("Skadi window icon: {s}", .{icon});
+    }
 
     fn windowRealize(_: *gtk.Widget, self: *Window) callconv(.c) void {
         const app = Application.default();
