@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import pty
 import select
-import signal
 import struct
 import subprocess
 import sys
@@ -19,31 +18,35 @@ banner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(banner)
 assert banner.frame(0) == '\x1b]4;251;#110000\x1b\\'
 assert banner.frame(1) == '\x1b]4;251;#11ffff\x1b\\'
+assert banner.whale_frame(0) == '\x1b]4;249;#130000\x1b\\'
+assert banner.whale_frame(72) == '\x1b]4;249;#13ffff\x1b\\'
 assert banner.fade_frame(0) == '\x1b]4;250;#120000\x1b\\'
 assert banner.fade_frame(1) == '\x1b]4;250;#12ffff\x1b\\'
-for scenario in ('full', 'input', 'signal', 'resize'):
+for scenario in ('full', 'input', 'resize'):
     master, slave = pty.openpty()
     fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 34, 100, 0, 0))
     before = termios.tcgetattr(slave)
+    if scenario == 'input':
+        # Bytes already waiting when the intro starts must retain normal echo
+        # and remain available to the shell, including a multibyte first key.
+        os.write(master, 'ação-áéç\n'.encode())
     proc = subprocess.Popen([sys.executable, str(path)], stdin=slave, stdout=slave, stderr=slave)
     start = time.monotonic()
     output = bytearray()
     acted = False
     while proc.poll() is None:
         elapsed = time.monotonic() - start
-        assert elapsed < 7, scenario
-        if scenario != 'full' and elapsed > .2 and not acted:
+        assert elapsed < .5, (scenario, 'intro is blocking shell initialization')
+        assert termios.tcgetattr(slave) == before, (scenario, 'intro changed input handling')
+        if scenario == 'resize' and not acted:
             acted = True
-            if scenario == 'input': os.write(master, 'ação-áéç\n'.encode())
-            if scenario == 'signal': proc.send_signal(signal.SIGTERM)
-            if scenario == 'resize':
-                fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 10, 24, 0, 0))
+            fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 10, 24, 0, 0))
         if select.select([master], [], [], .005)[0]:
             output.extend(os.read(master, 65536))
     assert proc.returncode == 0, scenario
     assert termios.tcgetattr(slave) == before, scenario
-    if scenario in ('full', 'resize'):
-        assert 5.3 < time.monotonic() - start < 6.5, scenario
+    assert time.monotonic() - start < .5, scenario
+    assert b'\x1b[?25l' not in output, 'intro must not hide the input cursor'
     if scenario == 'input':
         assert select.select([slave], [], [], .2)[0]
         assert os.read(slave, 100) == 'ação-áéç\n'.encode()
@@ -56,7 +59,6 @@ for scenario in ('full', 'input', 'signal', 'resize'):
         assert output.count(b'\x1b]4;251;') > count_at_prompt + 200
         assert output.count(b'\x1b]4;250;') == 1
         assert banner.RESET.encode() not in output
-        assert b'\x1b[?25h' in output
         assert banner.frame(banner.REVEAL_END / banner.DURATION).encode() in output
         # O hook de edição inicia --dismiss; o subprocesso não lê a entrada.
         os.write(master, 'echo ação\n'.encode())
@@ -79,7 +81,7 @@ for scenario in ('full', 'input', 'signal', 'resize'):
     print(f'OK {scenario}: prompt/termios/entrada; {time.monotonic()-start:.2f}s', flush=True)
     os.close(master)
     os.close(slave)
-print('OK: descida, prompt aos 5,4s, título permanente sem digitar, fade de 0,8s, entrada e resize')
+print('OK: shell liberado em <500 ms, entrada/echo intactos, animação independente e fade de 0,8s')
 
 # Exercise the actual Bash observer: empty edits do nothing; the first text
 # launches exactly one fade even if subsequent edit notifications arrive.
@@ -121,3 +123,35 @@ sleep 1.1
     os.close(master)
     os.close(slave)
 print('OK: observer real do Bash ignora buffer vazio e dispara fade uma única vez')
+
+# The startup fallback must restore the TTY even when ble.sh is unavailable.
+# Existing prompt commands and queued Unicode must survive that handoff.
+master, slave = pty.openpty()
+before = termios.tcgetattr(slave)
+startup = path.parent.parent / 'mary-shell/startup.bash'
+if not startup.is_file():
+    startup = Path(__file__).resolve().parents[1] / 'overrides/mary-shell/startup.bash'
+script = r'''
+source "$1"
+# No worker is needed to exercise the fallback's ownership of the TTY.
+function skadi/startup/ready { unset _skadi_intro_pending; }
+PROMPT_COMMAND=(':' 'true')
+before=$(stty -g)
+skadi/startup/prepare
+[[ ${PROMPT_COMMAND[0]} == : && ${PROMPT_COMMAND[1]} == true &&
+   ${PROMPT_COMMAND[2]} == skadi/startup/first-prompt ]] || exit 1
+[[ $(stty -g) != "$before" && $_skadi_intro_pending ]] || exit 2
+skadi/startup/first-prompt
+[[ $(stty -g) == "$before" && ! ${_skadi_intro_pending-} ]] || exit 3
+skadi/startup/first-prompt
+'''
+os.write(master, 'ação\n'.encode())
+proc = subprocess.run(['bash', '-c', script, 'check', str(startup)],
+                      stdin=slave, stdout=slave, stderr=slave, timeout=3)
+assert proc.returncode == 0
+assert termios.tcgetattr(slave) == before
+assert select.select([slave], [], [], .2)[0]
+assert os.read(slave, 100) == 'ação\n'.encode()
+os.close(master)
+os.close(slave)
+print('OK: fallback restaura eco, preserva PROMPT_COMMAND e entrada Unicode')

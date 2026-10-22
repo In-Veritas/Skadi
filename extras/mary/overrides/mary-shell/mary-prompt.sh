@@ -64,6 +64,8 @@ if [[ ${BLE_VERSION-} && ! ${_skadi_intro_observer_registered-} ]]; then
     function skadi/intro-on-edit {
         [[ ${_skadi_intro_dismissed-} || ! ${_ble_edit_str-} ]] && return 0
         _skadi_intro_dismissed=1
+        # Antes de o editor estar pronto, o título ainda está oculto.
+        [[ ${_skadi_intro_pending-} ]] && return 0
         local banner="${XDG_CONFIG_HOME:-$HOME/.config}/ghostty/banner/mary.py"
         if [[ -r $banner ]]; then
             # O subshell evita notificações de job no prompt interativo.
