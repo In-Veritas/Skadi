@@ -341,10 +341,11 @@ pub const bgImageBufferOptions = bufferOptions;
 
 /// Returns the options to use when constructing textures.
 pub inline fn textureOptions(self: OpenGL) Texture.Options {
-    _ = self;
     return .{
         .format = .rgba,
-        .internal_format = .srgba,
+        // Native blending and custom shaders exchange encoded colors. Avoid
+        // decoding them on texture reads when framebuffer encoding is off.
+        .internal_format = if (self.blending.isLinear()) .srgba else .rgba,
         .target = .@"2d",
         .min_filter = .linear,
         .mag_filter = .linear,

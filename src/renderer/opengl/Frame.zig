@@ -32,6 +32,16 @@ pub fn begin(
 ) !Self {
     _ = opts;
 
+    // Native blending already produces sRGB-encoded colors. The presentation
+    // target is an sRGB texture, so only enable its automatic encoding when
+    // the renderer actually produces linear colors. Set this each frame:
+    // exporting a dma-buf temporarily changes GL_FRAMEBUFFER_SRGB as well.
+    if (renderer.api.blending.isLinear()) {
+        try gl.enable(gl.c.GL_FRAMEBUFFER_SRGB);
+    } else {
+        try gl.disable(gl.c.GL_FRAMEBUFFER_SRGB);
+    }
+
     return .{
         .renderer = renderer,
         .target = target,
