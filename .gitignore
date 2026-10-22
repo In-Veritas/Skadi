@@ -34,6 +34,15 @@ vgcore.*
 /sprite_face_test*
 
 # Local Skadi studies and diagnostic output; ship only the selected icons.
+/extras/mary/design/*
+!/extras/mary/design/skadi-icons/
+/extras/mary/design/skadi-icons/*
+!/extras/mary/design/skadi-icons/caudas-v2/
+/extras/mary/design/skadi-icons/caudas-v2/*
+!/extras/mary/design/skadi-icons/caudas-v2/anel/
+/extras/mary/design/skadi-icons/caudas-v2/anel/*
+!/extras/mary/design/skadi-icons/caudas-v2/anel/06-gravura.png
+!/extras/mary/design/skadi-icons/2026-10-18-caudas-100/
 /extras/mary/design/event-studies/
 /extras/mary/design/whale-studies/
 /extras/mary/design/skadi-icons/collection/jubarte/15-close-transparente.*
