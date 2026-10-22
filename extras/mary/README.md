@@ -136,10 +136,12 @@ O `manifest.json` identifica os arquivos e as cópias anteriores.
 
 ## Abertura e fluidez
 
-O shell fica livre desde 5,4 segundos; o título espera a primeira digitação:
+O Bash e o editor inicializam antes da animação. Os tempos abaixo começam
+quando o editor já está pronto; o título espera a primeira digitação:
 
 - 0–5 s: Skadi desce lentamente e para no primeiro terço da tela (centro a 25%).
-- 5,4 s: aparece o prompt abaixo do título; já é possível digitar e executar.
+- O prompt já está pronto abaixo do título quando a intro começa;
+  a animação não acrescenta uma espera de 5,4 s para digitar.
 - 5,8–9,2 s: o mar nasce por colunas verticais, da esquerda para a direita;
   em cada coluna os pontos surgem de cima para baixo, mantendo suas órbitas.
 - Após a revelação: Skadi permanece no alto, ondulando, até começar a digitar.
@@ -161,15 +163,22 @@ instante de nascimento pela posição de repouso e pela fração dentro da
 coluna. O fade de cada ponto dura 240 ms; colunas vizinhas se sobrepõem
 para evitar blocos aparecendo juntos. A formação do mar caiu de 5,5 para
 3,4 segundos. O mar não reinicia ao final.
-`overrides/banner/mary.py` libera o processo principal aos 5,4 s e entrega o
-restante a um processo curto em segundo plano, que só emite OSC de paleta:
-nunca lê stdin nem altera posição do cursor ou conteúdo do terminal.
+`overrides/mary-shell/startup.bash` reserva o espaço do prompt e suspende o
+eco durante a preparação do Bash. O TTY conserva as teclas sem desenhá-las
+isoladas antes do prompt. O primeiro idle do ble.sh inicia a animação depois
+de assumir a edição e processar a entrada antecipada. Se ble.sh não carregar,
+o primeiro prompt restaura o estado anterior do TTY. A preparação ainda leva
+o tempo necessário para carregar o `.bashrc`; ela acontece antes da intro.
+O worker `overrides/banner/mary.py --animate` só emite controles OSC de paleta:
+nunca lê stdin, escreve texto, move o cursor ou altera termios.
 O progresso usa 16 bits nos canais verde/azul da cor 251 (vermelho=17), com
 atualização alvo de 60 Hz até 9,6 s. A cor 250 (vermelho=18) controla
 o fade independente. Um observador de edição do ble.sh inicia uma única
 saída ao primeiro texto, sem ler stdin nem manter um processo esperando. Os índices
 252–255 seguem exclusivos da seed. Resize não interrompe a sequência;
-digitar antes da hora adianta a liberação do prompt sem consumir as teclas.
+Digitação antecipada preserva a primeira letra e dispensa o título antes de
+ele aparecer, sem adiantar o relógio do mar. Durante a intro, o título sai
+suavemente enquanto o comando é editado.
 
 O perfil define `resize-overlay = never`, ocultando o indicador de dimensões
 que pode surgir quando a janela ajusta o tamanho na abertura. O prompt ativo
@@ -195,9 +204,14 @@ renderizador do fork segue em 8 ms.
 ```sh
 python3 extras/mary/install.py --user-dir /tmp/mary-opening-stage
 python3 extras/mary/tests/check_banner.py /tmp/mary-opening-stage/.config/ghostty/banner/mary.py
+python3 extras/mary/tests/check_startup_input.py --launch-window
 python3 extras/mary/tests/render_shader.py --benchmark
 python3 extras/mary/tests/render_shader.py --skip-animation
 ```
+
+O teste `check_startup_input.py` requer `pyte` (`pip install pyte==0.8.2`
+em um ambiente Python de testes). Ele verifica as células renderizadas e a
+posição da primeira letra, além do buffer do editor, Unicode, edição e colagem.
 
 ## Instalar
 
@@ -277,3 +291,50 @@ apenas 512 px deixa o GTK escolher os ícones pequenos antigos do sistema.
 
 O lançador usa um nome de ícone derivado do conteúdo da imagem, evitando
 que a busca do KDE mantenha uma versão anterior em cache após a troca.
+
+Em KDE/Wayland, o fork também usa a seleção salva em
+`design/skadi-icons/2026-10-18-caudas-100/selection.json` para diferenciar
+janelas na barra. A primeira janela mantém o ícone original; as seguintes
+recebem as 20 caudas favoritas, sem repetição enquanto houver uma livre.
+Cada janela mantém sua escolha até fechar. Acima de 20 variantes simultâneas,
+as repetições são distribuídas entre as opções menos usadas.
+Todas as variantes disponíveis têm a mesma probabilidade de serem escolhidas,
+independentemente de contraste ou número no catálogo. O sorteio não favorece
+os primeiros favoritos exportados. Quando todas estão ocupadas, o sorteio é
+uniforme entre as menos usadas, mantendo a distribuição equilibrada.
+
+O cadastro oculto `com.mitchellh.ghostty.window.desktop` omite `Icon`, para
+o Plasma usar a imagem individual enviada pelo GTK. A identidade D-Bus do
+aplicativo e o lançador original permanecem os mesmos. A barra deve manter
+o agrupamento de janelas desativado. Terminais rápidos não ocupam vagas.
+
+Para atualizar apenas os ícones e o executável compilado, com backup:
+`python3 extras/mary/window_icons.py --app-build zig-out`.
+Uma instância já aberta continua executando o binário anterior até encerrar;
+a atualização não fecha sessões. Sem o catálogo instalado, o fork usa
+o ícone normal em todas as janelas.
+
+Teste da distribuição: `zig test src/apprt/gtk/IconPool.zig`.
+Teste visual da versão compilada:
+`python3 extras/mary/tests/check_window_icons_runtime.py --binary zig-out/bin/ghostty`.
+Ele usa uma instância separada, captura a barra e restaura os arquivos temporários.
+
+### Variação do mar
+
+O mar sorteia altura e ritmo por sessão, além de direção e comprimento das
+ondas. Duas variações lentas do clima alteram a energia e desviam suavemente
+as direções durante o uso. A velocidade é integrada no tempo para evitar
+saltos nas cristas em sessões longas. A primeira visita da jubarte original começa um segundo após o mar
+terminar de aparecer. Uma gaivota por evento atravessa a tela em direção e
+altura sorteadas, começando e terminando fora da área visível. Há um evento
+por ciclo de 56 segundos, com voo de 12–18 segundos e início variável.
+
+O instalador preserva os arquivos anteriores em `~/.local/share/mary/backups`
+com um manifesto para reverter a experiência, caso necessário.
+
+Para instalar também o executável compilado com a identificação Skadi nas
+notificações: `python3 extras/mary/install.py --app-build zig-out`.
+O binário e seus recursos ficam em `~/.local/share/skadi/runtime`; o lançador,
+o menu do Dolphin e a ativação D-Bus passam a usá-lo. Não substitui o binário
+da distribuição nem fecha sessões. É necessário encerrar as instâncias
+antigas e abrir o aplicativo de novo para usar a nova compilação.

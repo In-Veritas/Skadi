@@ -1,17 +1,17 @@
 <!-- LOGO -->
 <h1>
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/fe853809-ba8b-400b-83ab-a9a0da25be8a" alt="Logo" width="128">
-  <br>Ghostty
+  <img src="extras/mary/design/skadi-icons/caudas-v2/anel/06-gravura.png" alt="Skadi" width="128">
+  <br>Skadi
 </h1>
   <p align="center">
-    Fast, native, feature-rich terminal emulator pushing modern features.
+    A Ghostty fork with an animated ocean, humpback flukes, and a custom Bash experience.
     <br />
     A native GUI or embeddable library via <code>libghostty</code>.
     <br />
     <a href="#about">About</a>
     ·
-    <a href="https://ghostty.org/download">Download</a>
+    <a href="extras/mary/README.md#instalar">Install Skadi</a>
     ·
     <a href="https://ghostty.org/docs">Documentation</a>
     ·
@@ -23,6 +23,13 @@
 
 Este fork inclui o [perfil Skadi e seu instalador](extras/mary/README.md), com
 as configurações, fontes, efeitos e integração Bash do pacote portátil.
+O repositório é [In-Veritas/Skadi](https://github.com/In-Veritas/Skadi).
+Os caminhos internos `extras/mary` e as configurações `mary` são mantidos
+por compatibilidade com as instalações existentes. O nome da pasta do
+checkout não precisa coincidir com o nome do repositório no GitHub.
+
+As seções abaixo documentam o projeto original
+[Ghostty](https://github.com/ghostty-org/ghostty), no qual o Skadi se baseia.
 
 ## About
 
